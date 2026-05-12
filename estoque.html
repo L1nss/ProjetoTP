@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Controle de Estoque | Pedrinho Farmácias</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <nav class="container-fluid">
+    <ul>
+      <li>
+        <strong>Pedrinho Farmácias</strong>
+      </li>
+    </ul>
+
+    <ul>
+      <li><a href="index.html">Início</a></li>
+      
+      <li class="admin-only hidden">
+        <a href="estoque.html">Estoque</a>
+      </li>
+
+      <li class="guest-only">
+        <a href="login.html">Login</a>
+      </li>
+
+      <li class="user-only hidden">
+        <button class="logout-nav-button" type="button" onclick="logoutUser()">
+          Sair
+        </button>
+      </li>
+    </ul>
+  </nav>
+
+  <main class="container estoque-page">
+    <section>
+
+      <div class="section-title">
+        <div>
+          <hgroup>
+            <h2>Controle de estoque</h2>
+            <h3>Área administrativa da Pedrinho Farmácias</h3>
+          </hgroup>
+
+          <p>
+            Gerencie a quantidade disponível de medicamentos, perfumaria e serviços.
+            Essa página só pode ser acessada por usuários administradores.
+          </p>
+        </div>
+      </div>
+
+      <div class="pharmacy-warning">
+        <strong>Acesso restrito:</strong>
+        somente administradores podem visualizar e alterar o estoque da loja.
+      </div>
+
+      <div class="stock-actions">
+        <button type="button" onclick="resetStockSystem()">
+          Restaurar estoque padrão
+        </button>
+      </div>
+
+      <div class="stock-table-wrapper">
+        <table class="stock-table">
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th>Categoria</th>
+              <th>Quantidade</th>
+              <th>Status</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+
+          <tbody id="stock-table-body">
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+  </main>
+
+  <footer class="container">
+    <small>
+      <a href="index.html">Início</a> •
+      © 2026 Pedrinho Farmácias
+    </small>
+  </footer>
+
+  <script src="script.js"></script>
+
+</body>
+</html>

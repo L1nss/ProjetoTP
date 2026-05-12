@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Login | Pedrinho Farmácias</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <nav class="container-fluid">
+    <ul>
+      <li>
+        <strong>Pedrinho Farmácias</strong>
+      </li>
+    </ul>
+
+    <ul>
+      <li><a href="index.html">Início</a></li>
+      <li><a href="medicamentos.html">Medicamentos</a></li>
+      <li><a href="servicos.html">Serviços</a></li>
+      <li><a href="perfumaria.html">Perfumaria</a></li>
+      <li><a href="estoque.html">Estoque</a></li>
+    </ul>
+  </nav>
+
+  <main class="container modern-login-page">
+
+    <section class="modern-login-wrapper">
+
+      <aside class="modern-login-hero">
+        <div class="login-hero-overlay"></div>
+
+        <div class="modern-login-hero-content">
+          <span class="login-pill">Área do cliente</span>
+
+          <h1>Entre na sua conta Pedrinho Farmácias</h1>
+
+          <p>
+            Acesse sua conta para acompanhar compras, finalizar pedidos pelo WhatsApp,
+            salvar seus dados e receber ofertas exclusivas.
+          </p>
+
+          <div class="modern-login-stats">
+            <div>
+              <strong>+100</strong>
+              <span>produtos</span>
+            </div>
+
+            <div>
+              <strong>24h</strong>
+              <span>atendimento</span>
+            </div>
+
+            <div>
+              <strong>35%</strong>
+              <span>em ofertas</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="modern-login-card">
+
+        <div class="modern-login-brand">
+          <div class="modern-login-icon"></div>
+
+          <div>
+            <strong>Pedrinho Farmácias</strong>
+            <span>Saúde, cuidado e economia</span>
+          </div>
+        </div>
+
+        <div class="modern-login-tabs">
+          <button type="button" class="tab-button active" onclick="showLogin()">
+            Entrar
+          </button>
+
+          <button type="button" class="tab-button" onclick="showRegister()">
+            Criar conta
+          </button>
+        </div>
+
+        <form id="login-form" class="modern-form">
+          <div class="form-title">
+            <h2>Bem-vindo de volta</h2>
+            <p>Entre com seu e-mail e senha para continuar.</p>
+          </div>
+
+          <label for="login-email">E-mail</label>
+          <div class="input-group">
+            <span>✉️</span>
+            <input
+              type="email"
+              id="login-email"
+              placeholder="seuemail@exemplo.com"
+              required
+            />
+          </div>
+
+          <label for="login-password">Senha</label>
+          <div class="input-group">
+            <span>🔒</span>
+            <input
+              type="password"
+              id="login-password"
+              placeholder="Digite sua senha"
+              required
+            />
+          </div>
+
+          <div class="login-options">
+            <label class="remember-box">
+              <input type="checkbox" />
+              <span>Lembrar de mim</span>
+            </label>
+
+            <button type="button" class="forgot-button" onclick="alert('Recuperação de senha ainda não configurada.')">
+              Esqueci a senha
+            </button>
+          </div>
+
+          <button type="submit" class="modern-login-button">
+            Entrar na conta
+          </button>
+
+          <p class="modern-login-switch">
+            Ainda não tem uma conta?
+            <button type="button" onclick="showRegister()">Criar agora</button>
+          </p>
+        </form>
+
+        <form id="register-form" class="modern-form hidden">
+          <div class="form-title">
+            <h2>Crie sua conta</h2>
+            <p>Cadastre-se para uma experiência mais completa.</p>
+          </div>
+
+          <label for="register-name">Nome completo</label>
+          <div class="input-group">
+            <span>👤</span>
+            <input
+              type="text"
+              id="register-name"
+              placeholder="Digite seu nome"
+              required
+            />
+          </div>
+
+          <label for="register-email">E-mail</label>
+          <div class="input-group">
+            <span>✉️</span>
+            <input
+              type="email"
+              id="register-email"
+              placeholder="seuemail@exemplo.com"
+              required
+            />
+          </div>
+
+          <label for="register-password">Senha</label>
+          <div class="input-group">
+            <span>🔒</span>
+            <input
+              type="password"
+              id="register-password"
+              placeholder="Crie uma senha"
+              minlength="4"
+              required
+            />
+          </div>
+
+          <button type="submit" class="modern-login-button">
+            Criar minha conta
+          </button>
+
+          <p class="modern-login-switch">
+            Já tem conta?
+            <button type="button" onclick="showLogin()">Fazer login</button>
+          </p>
+        </form>
+
+        <div id="user-panel" class="modern-user-panel hidden">
+          <div class="modern-user-avatar"></div>
+
+          <h2>Login realizado</h2>
+
+          <p id="user-message"></p>
+
+          <div class="modern-user-actions">
+            <a href="index.html" class="modern-login-button">
+              Ir para a loja
+            </a>
+
+            <button type="button" class="modern-logout-button" onclick="logoutUser()">
+              Sair da conta
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+    </section>
+
+  </main>
+
+  <footer class="container">
+    <small>
+      <a href="index.html">Início</a> •
+      <a href="medicamentos.html">Medicamentos</a> •
+      <a href="servicos.html">Serviços</a> •
+      <a href="perfumaria.html">Perfumaria</a> •
+      © 2026 Pedrinho Farmácias
+    </small>
+  </footer>
+
+  <script src="script.js"></script>
+
+</body>
+</html>

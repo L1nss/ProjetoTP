@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Painel Admin | Pedrinho Farmácias</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <nav class="container-fluid">
+    <ul>
+      <li>
+        <strong>💚 Pedrinho Farmácias</strong>
+      </li>
+    </ul>
+
+    <ul>
+      <li><a href="index.html">Início</a></li>
+      <li><a href="medicamentos.html">Medicamentos</a></li>
+      <li><a href="servicos.html">Serviços</a></li>
+      <li><a href="perfumaria.html">Perfumaria</a></li>
+
+      <li class="admin-only hidden">
+        <a href="admin.html">Painel Admin</a>
+      </li>
+
+      <li class="admin-only hidden">
+        <a href="estoque.html">Estoque</a>
+      </li>
+
+      <li class="guest-only">
+        <a href="login.html">Login</a>
+      </li>
+
+      <li class="user-only hidden">
+        <span class="user-name"></span>
+      </li>
+
+      <li class="user-only hidden">
+        <button class="logout-nav-button" type="button" onclick="logoutUser()">
+          Sair
+        </button>
+      </li>
+    </ul>
+  </nav>
+
+  <main class="container admin-page">
+
+    <section class="admin-hero">
+      <span>Painel do administrador</span>
+
+      <h1>Resumo administrativo da Pedrinho Farmácias</h1>
+
+      <p>
+        Acompanhe vendas, faturamento, produtos mais vendidos, notas fiscais
+        emitidas e logs brutos do sistema.
+      </p>
+
+      <div class="admin-hero-actions">
+        <a href="estoque.html">Gerenciar estoque</a>
+        <button type="button" onclick="resetAdminData()">Limpar dados administrativos</button>
+      </div>
+    </section>
+
+    <section class="admin-dashboard-grid">
+
+      <article class="admin-metric-card">
+        <span>Valor total das vendas</span>
+        <strong id="admin-total-sales">R$ 0,00</strong>
+        <small>Total registrado em pedidos finalizados.</small>
+      </article>
+
+      <article class="admin-metric-card">
+        <span>Valor total bruto</span>
+        <strong id="admin-gross-sales">R$ 0,00</strong>
+        <small>Soma bruta dos itens vendidos.</small>
+      </article>
+
+      <article class="admin-metric-card">
+        <span>Produto mais vendido</span>
+        <strong id="admin-top-product">Nenhum</strong>
+        <small id="admin-top-product-qty">0 unidades vendidas.</small>
+      </article>
+
+      <article class="admin-metric-card">
+        <span>Notas fiscais emitidas</span>
+        <strong id="admin-invoice-count">0</strong>
+        <small>Total de notas geradas.</small>
+      </article>
+
+    </section>
+
+    <section class="admin-panel-section">
+      <div class="admin-section-title">
+        <div>
+          <h2>Gráfico de produtos mais vendidos</h2>
+          <p>Ranking baseado nos pedidos finalizados pelo WhatsApp.</p>
+        </div>
+      </div>
+
+      <div class="admin-chart" id="admin-products-chart">
+        <p class="admin-empty">Nenhuma venda registrada ainda.</p>
+      </div>
+    </section>
+
+    <section class="admin-panel-section">
+      <div class="admin-section-title">
+        <div>
+          <h2>Notas fiscais emitidas</h2>
+          <p>Numeração automática das notas fiscais simuladas.</p>
+        </div>
+      </div>
+
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Número</th>
+              <th>Cliente</th>
+              <th>Data</th>
+              <th>Valor</th>
+              <th>Itens</th>
+            </tr>
+          </thead>
+
+          <tbody id="admin-invoices-table">
+            <tr>
+              <td colspan="5">Nenhuma nota fiscal emitida.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="admin-panel-section">
+      <div class="admin-section-title">
+        <div>
+          <h2>Logs brutos</h2>
+          <p>Registro técnico das ações do sistema.</p>
+        </div>
+
+        <button type="button" class="admin-secondary-button" onclick="copyAdminLogs()">
+          Copiar logs
+        </button>
+      </div>
+
+      <pre class="admin-logs" id="admin-raw-logs">Nenhum log registrado.</pre>
+    </section>
+
+  </main>
+
+  <footer class="container">
+    <small>
+      <a href="index.html">Início</a> •
+      <a href="estoque.html">Estoque</a> •
+      © 2026 Pedrinho Farmácias
+    </small>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

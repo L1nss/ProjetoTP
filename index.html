@@ -1,45 +1,530 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pedrinho Farmácias</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Pedrinho Farmácias | E-commerce</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
+  <nav class="container-fluid">
+    <ul>
+      <li>
+        <strong>Pedrinho Farmácias</strong>
+      </li>
+    </ul>
 
+    <ul>
+      <li><a href="index.html">Início</a></li>
+      <li><a href="medicamentos.html">Medicamentos</a></li>
+      <li><a href="servicos.html">Serviços</a></li>
+      <li><a href="perfumaria.html">Perfumaria</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li>
+        <button class="cart-nav-button" type="button" onclick="openCart()">
+          🛒 Carrinho <span id="cart-count">0</span>
+        </button>
+      </li>
+    </ul>
+  </nav>
 
-  <section class="banner">
-    <div class="slide active">
-      <h1>Bem-vindo à Pedrinho Farmácias</h1>
-      <p>Saúde, cuidado e economia para você.</p>
+  <aside class="cart-sidebar" id="cart-sidebar">
+    <div class="cart-header">
+      <div>
+        <h2>Seu carrinho</h2>
+        <p>Confira seus produtos antes de finalizar.</p>
+      </div>
+
+      <button class="cart-close" type="button" onclick="closeCart()">×</button>
+    </div>
+
+    <div class="cart-items" id="cart-items">
+      <p class="empty-cart">Seu carrinho está vazio.</p>
+    </div>
+
+    <div class="cart-footer">
+      <div class="cart-total final">
+        <span>Total</span>
+        <strong id="cart-total">R$ 0,00</strong>
+      </div>
+
+      <button type="button" class="checkout-button" onclick="finishOrder()">
+        Finalizar pelo WhatsApp
+      </button>
+
+      <button type="button" class="clear-cart-button" onclick="clearCart()">
+        Limpar carrinho
+      </button>
+    </div>
+  </aside>
+
+  <div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
+
+  <main class="container">
+    <div class="grid">
+      <section>
+
+        <section class="hero-carousel" aria-label="Carrossel principal da Pedrinho Farmácias">
+
+          <article class="slide active">
+            <div class="hero-content">
+              <span class="eyebrow">Entrega rápida • Compra segura • Farmacêutico disponível</span>
+
+              <h1>Cuidado de farmácia com preço de e-commerce.</h1>
+
+              <p>
+                Medicamentos, vitaminas, perfumaria e serviços farmacêuticos
+                em uma experiência moderna, segura e prática.
+              </p>
+
+              <div class="hero-actions">
+                <a class="btn-light" href="#produtos">Ver ofertas</a>
+                <a class="btn-outline" href="#categorias">Explorar categorias</a>
+              </div>
+            </div>
+
+            <div class="hero-image">
+              <img
+                src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=1200&q=80"
+                alt="Farmácia moderna com medicamentos organizados"
+              />
+
+              <div class="floating-card">
+                <strong>Até 35% OFF</strong>
+                Ofertas selecionadas para cuidar da sua saúde.
+              </div>
+            </div>
+          </article>
+
+          <article class="slide">
+            <div class="hero-content">
+              <span class="eyebrow">Serviços de saúde • Atendimento humanizado</span>
+
+              <h1>Mais que vender produtos: a gente cuida de você.</h1>
+
+              <p>
+                Aferição de pressão, testes rápidos, orientação farmacêutica
+                e acompanhamento para facilitar sua rotina.
+              </p>
+
+              <div class="hero-actions">
+                <a class="btn-light" href="servicos.html">Conhecer serviços</a>
+                <a class="btn-outline" href="#newsletter">Receber novidades</a>
+              </div>
+            </div>
+
+            <div class="hero-image">
+              <img
+                src="https://images.unsplash.com/photo-1631549916768-4119b2e5f926?auto=format&fit=crop&w=1200&q=80"
+                alt="Farmacêutica atendendo cliente"
+              />
+
+              <div class="floating-card">
+                <strong>Orientação segura</strong>
+                Atendimento farmacêutico para comprar melhor.
+              </div>
+            </div>
+          </article>
+
+          <article class="slide">
+            <div class="hero-content">
+              <span class="eyebrow">Beleza • Higiene • Bem-estar</span>
+
+              <h1>Perfumaria completa para sua rotina de cuidado.</h1>
+
+              <p>
+                Dermocosméticos, skincare, higiene, cabelo, corpo e produtos
+                de beleza com preços especiais.
+              </p>
+
+              <div class="hero-actions">
+                <a class="btn-light" href="perfumaria.html">Comprar perfumaria</a>
+                <a class="btn-outline" href="#categorias">Ver categorias</a>
+              </div>
+            </div>
+
+            <div class="hero-image">
+              <img
+                src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1200&q=80"
+                alt="Produtos de beleza"
+              />
+
+              <div class="floating-card">
+                <strong>Combo beleza</strong>
+                Cuidados pessoais com economia.
+              </div>
+            </div>
+          </article>
+
+          <div class="carousel-controls">
+            <button class="dot active" type="button" aria-label="Slide 1"></button>
+            <button class="dot" type="button" aria-label="Slide 2"></button>
+            <button class="dot" type="button" aria-label="Slide 3"></button>
+          </div>
+
+        </section>
+
+        <div class="benefits">
+          <article class="benefit">
+            <img
+              src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=300&q=80"
+              alt="Entrega rápida"
+            />
+            <h3>Entrega rápida</h3>
+            <p>Receba seus produtos com praticidade.</p>
+          </article>
+
+          <article class="benefit">
+            <img
+              src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=300&q=80"
+              alt="Compra segura"
+            />
+            <h3>Compra segura</h3>
+            <p>Carrinho com total automático e pedido pelo WhatsApp.</p>
+          </article>
+
+          <article class="benefit">
+            <img
+              src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=300&q=80"
+              alt="Serviços rápidos"
+            />
+            <h3>Serviços rápidos</h3>
+            <p>Atendimento farmacêutico perto de você.</p>
+          </article>
+
+          <article class="benefit">
+            <img
+              src="https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?auto=format&fit=crop&w=300&q=80"
+              alt="Orientação farmacêutica"
+            />
+            <h3>Orientação</h3>
+            <p>Suporte para comprar com mais confiança.</p>
+          </article>
+        </div>
+
+        <div class="section-title" id="categorias">
+          <div>
+            <hgroup>
+              <h2>Compre por categoria</h2>
+              <h3>Escolha o departamento ideal</h3>
+            </hgroup>
+
+            <p>
+              Encontre medicamentos, perfumaria e serviços de saúde com poucos cliques.
+            </p>
+          </div>
+        </div>
+
+        <div class="category-grid">
+
+          <a class="category-card" href="medicamentos.html">
+            <img
+              src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=900&q=80"
+              alt="Medicamentos"
+            />
+
+            <div class="category-body">
+              <h3>Medicamentos</h3>
+              <p>Genéricos, vitaminas e itens essenciais.</p>
+            </div>
+          </a>
+
+          <a class="category-card" href="servicos.html">
+            <img
+              src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80"
+              alt="Serviços farmacêuticos"
+            />
+
+            <div class="category-body">
+              <h3>Serviços</h3>
+              <p>Testes rápidos, pressão e orientação.</p>
+            </div>
+          </a>
+
+          <a class="category-card" href="perfumaria.html">
+            <img
+              src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=900&q=80"
+              alt="Perfumaria"
+            />
+
+            <div class="category-body">
+              <h3>Perfumaria</h3>
+              <p>Beleza, higiene, skincare e cuidados pessoais.</p>
+            </div>
+          </a>
+
+        </div>
+
+        <div class="pharmacy-warning">
+          <strong>Atenção:</strong>
+          Medicamentos devem ser utilizados com orientação profissional.
+          Alguns produtos podem exigir receita médica.
+        </div>
+
+        <div class="section-title" id="produtos">
+          <div>
+            <hgroup>
+              <h2>Ofertas em destaque</h2>
+              <h3>Produtos mais procurados da semana</h3>
+            </hgroup>
+
+            <p>
+              Use a busca ou os filtros para encontrar rapidamente o que precisa.
+            </p>
+          </div>
+
+          <button class="cart-secondary-button" type="button" onclick="openCart()">
+            Ver carrinho
+          </button>
+        </div>
+
+        <div class="product-tools">
+          <input
+            type="search"
+            id="product-search"
+            placeholder="Buscar produto..."
+            aria-label="Buscar produto"
+          />
+
+          <div class="filter-buttons">
+            <button type="button" class="filter-btn active" data-filter="all">Todos</button>
+            <button type="button" class="filter-btn" data-filter="medicamento">Medicamentos</button>
+            <button type="button" class="filter-btn" data-filter="perfumaria">Perfumaria</button>
+            <button type="button" class="filter-btn" data-filter="servico">Serviços</button>
+          </div>
+        </div>
+
+        <div class="product-grid">
+
+          <article class="product-card" data-name="Kit Medicamentos Essenciais" data-category="medicamento">
+            <img
+              src="https://images.unsplash.com/photo-1628771065518-0d82f1938462?auto=format&fit=crop&w=900&q=80"
+              alt="Kit medicamentos"
+            />
+
+            <div class="product-body">
+              <span class="product-tag">Medicamento</span>
+              <h3>Kit Medicamentos Essenciais</h3>
+              <p>Itens básicos para cuidado diário. Consulte um farmacêutico em caso de dúvidas.</p>
+
+              <div class="product-meta">
+                <span class="price">
+                  <small>R$ 59,90</small>
+                  R$ 39,90
+                </span>
+
+                <button
+                  class="buy-button"
+                  onclick="addToCart('Kit Medicamentos Essenciais', 39.90, 'https://images.unsplash.com/photo-1628771065518-0d82f1938462?auto=format&fit=crop&w=300&q=80')"
+                >
+                  Comprar
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <article class="product-card" data-name="Vitaminas e Imunidade" data-category="medicamento">
+            <img
+              src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=900&q=80"
+              alt="Vitaminas"
+            />
+
+            <div class="product-body">
+              <span class="product-tag">Suplemento</span>
+              <h3>Vitaminas e Imunidade</h3>
+              <p>Suplementos para bem-estar, energia e rotina saudável.</p>
+
+              <div class="product-meta">
+                <span class="price">
+                  <small>R$ 84,90</small>
+                  R$ 64,90
+                </span>
+
+                <button
+                  class="buy-button"
+                  onclick="addToCart('Vitaminas e Imunidade', 64.90, 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=300&q=80')"
+                >
+                  Comprar
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <article class="product-card" data-name="Combo Skincare" data-category="perfumaria">
+            <img
+              src="https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=900&q=80"
+              alt="Skincare"
+            />
+
+            <div class="product-body">
+              <span class="product-tag">Perfumaria</span>
+              <h3>Combo Skincare</h3>
+              <p>Cuidados para pele com toque premium e preço especial.</p>
+
+              <div class="product-meta">
+                <span class="price">
+                  <small>R$ 119,90</small>
+                  R$ 89,90
+                </span>
+
+                <button
+                  class="buy-button"
+                  onclick="addToCart('Combo Skincare', 89.90, 'https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=300&q=80')"
+                >
+                  Comprar
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <article class="product-card" data-name="Medicamento Genérico" data-category="medicamento">
+            <img
+              src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=900&q=80"
+              alt="Medicamento genérico"
+            />
+
+            <div class="product-body">
+              <span class="product-tag">Genérico</span>
+              <h3>Medicamento Genérico</h3>
+              <p>Economia e qualidade. Medicamento sujeito à orientação farmacêutica.</p>
+
+              <div class="product-meta">
+                <span class="price">
+                  <small>R$ 34,90</small>
+                  R$ 24,90
+                </span>
+
+                <button
+                  class="buy-button"
+                  onclick="addToCart('Medicamento Genérico', 24.90, 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=300&q=80')"
+                >
+                  Comprar
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <article class="product-card" data-name="Perfume Especial" data-category="perfumaria">
+            <img
+              src="https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=900&q=80"
+              alt="Perfume"
+            />
+
+            <div class="product-body">
+              <span class="product-tag">Beleza</span>
+              <h3>Perfume Especial</h3>
+              <p>Fragrância marcante para todos os momentos.</p>
+
+              <div class="product-meta">
+                <span class="price">
+                  <small>R$ 149,90</small>
+                  R$ 109,90
+                </span>
+
+                <button
+                  class="buy-button"
+                  onclick="addToCart('Perfume Especial', 109.90, 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=300&q=80')"
+                >
+                  Comprar
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <article class="product-card" data-name="Teste Rápido" data-category="servico">
+            <img
+              src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=900&q=80"
+              alt="Teste rápido"
+            />
+
+            <div class="product-body">
+              <span class="product-tag">Serviço</span>
+              <h3>Teste Rápido</h3>
+              <p>Praticidade e prevenção com atendimento seguro.</p>
+
+              <div class="product-meta">
+                <span class="price">
+                  <small>R$ 39,90</small>
+                  R$ 24,90
+                </span>
+
+                <button
+                  class="buy-button"
+                  onclick="addToCart('Teste Rápido', 24.90, 'https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=300&q=80')"
+                >
+                  Comprar
+                </button>
+              </div>
+            </div>
+          </article>
+
+        </div>
+
+        <section class="promo-band">
+          <h2>E-commerce de farmácia com carrinho inteligente.</h2>
+
+          <p>
+            Adicione produtos, altere quantidades e envie o pedido diretamente pelo WhatsApp.
+          </p>
+
+          <button class="btn-light" type="button" onclick="openCart()">
+            Abrir carrinho
+          </button>
+        </section>
+
+      </section>
+    </div>
+  </main>
+
+  <section aria-label="Subscribe example" id="newsletter">
+    <div class="container">
+      <article>
+        <hgroup>
+          <h2>Receba ofertas da Pedrinho Farmácias</h2>
+          <h3>Cadastre-se para ganhar cupons e novidades</h3>
+        </hgroup>
+
+        <form class="grid">
+          <input
+            type="text"
+            name="firstname"
+            placeholder="Seu nome"
+            aria-label="Seu nome"
+            required
+          />
+
+          <input
+            type="email"
+            name="email"
+            placeholder="Seu e-mail"
+            aria-label="Seu e-mail"
+            required
+          />
+
+          <button type="submit">
+            Quero receber
+          </button>
+        </form>
+      </article>
     </div>
   </section>
 
-  <main class="container">
-
-    <section class="card"><a href="medicamentos.html">
-      <h2>Medicamentos</h2>
-      <p>Os melhores remédios com preço justo e atendimento especializado.</p></a>
-    </section>
-
-    <section class="card"><a href="serviços.html">
-      <h2>Serviços</h2>
-      <p>Aferição de pressão, testes rápidos e acompanhamento farmacêutico.</p></a>
-    </section>
-
-    <section class="card"><a href="perfumaria.html">
-      <h2>Perfumaria</h2>
-      <p>Produtos de higiene, beleza e cuidados pessoais das melhores marcas.</p></a>
-    </section>
-
-  </main>
-
-  <footer>
-    <p>© 2026 Pedrinho Farmácias - Todos os direitos reservados</p>
+  <footer class="container">
+    <small>
+      <a href="medicamentos.html">Medicamentos</a> •
+      <a href="servicos.html">Serviços</a> •
+      <a href="perfumaria.html">Perfumaria</a> •
+      <a href="https://wa.me/555596601385" target="_blank">WhatsApp</a> •
+      © 2026 Pedrinho Farmácias
+    </small>
   </footer>
 
+  <script src="script.js"></script>
+
 </body>
-</html>
+</html>x  x
