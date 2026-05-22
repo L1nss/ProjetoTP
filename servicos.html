@@ -266,7 +266,29 @@
       © 2026 Pedrinho Farmácias
     </small>
   </footer>
+<div class="payment-modal" id="payment-modal">
+  <div class="payment-box">
+    <button class="payment-close" type="button" onclick="closePaymentModal()">
+      ×
+    </button>
 
+    <h2>Pagamento do pedido</h2>
+    <p>Escaneie o QR Code abaixo para finalizar sua compra.</p>
+
+    <div id="payment-qrcode" class="payment-qrcode"></div>
+
+    <div class="payment-info">
+      <strong id="payment-total">R$ 0,00</strong>
+      <span>Pagamento via QR Code</span>
+    </div>
+
+    <button type="button" class="payment-confirm" onclick="confirmPayment()">
+      Confirmar pagamento
+    </button>
+  </div>
+</div>
   <script src="script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

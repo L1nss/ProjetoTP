@@ -1,15 +1,59 @@
+/* =====================================================
+   PEDRINHO FARMÁCIAS - SCRIPT.JS FINAL
+   Carrinho, estoque, login, permissões e painel admin
+===================================================== */
+
+/* ===============================
+   FUNÇÕES ÚTEIS
+================================ */
+
+function getStorage(key, fallback = null) {
+  try {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function setStorage(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function formatMoney(value) {
+  return Number(value || 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+}
+
+function normalizeText(text) {
+  return String(text || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+
+function createSafeId(text) {
+  return String(text || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "-");
+}
+
 /* ===============================
    CARROSSEL
 ================================ */
 
 const slides = document.querySelectorAll(".slide");
-const dots = document.querySelectorAll(".dot");
+const dots = document.querySelectorAll(".dot, .bolinhas span");
 
 let currentSlide = 0;
-let carouselInterval;
+let carouselInterval = null;
 
 function showSlide(index) {
-  if (!slides.length || !dots.length) return;
+  if (!slides.length) return;
 
   slides.forEach((slide, i) => {
     slide.classList.toggle("active", i === index);
@@ -35,18 +79,25 @@ function startCarousel() {
   carouselInterval = setInterval(nextSlide, 5500);
 }
 
+function stopCarousel() {
+  if (carouselInterval) {
+    clearInterval(carouselInterval);
+  }
+}
+
 dots.forEach((dot, index) => {
   dot.addEventListener("click", () => {
-    clearInterval(carouselInterval);
+    stopCarousel();
     showSlide(index);
     startCarousel();
   });
 });
 
+showSlide(0);
 startCarousel();
 
 /* ===============================
-   SISTEMA DE ESTOQUE
+   ESTOQUE
 ================================ */
 
 const defaultStock = [
@@ -67,45 +118,50 @@ const defaultStock = [
 ];
 
 function getStockList() {
-  const savedStock = JSON.parse(localStorage.getItem("pedrinhoStock"));
+  const savedStock = getStorage("pedrinhoStock", null);
 
-  if (!savedStock) {
-    localStorage.setItem("pedrinhoStock", JSON.stringify(defaultStock));
-    return defaultStock;
+  if (!savedStock || !Array.isArray(savedStock)) {
+    setStorage("pedrinhoStock", defaultStock);
+    return [...defaultStock];
   }
 
   return savedStock;
 }
 
 function saveStockList(stockList) {
-  localStorage.setItem("pedrinhoStock", JSON.stringify(stockList));
+  setStorage("pedrinhoStock", stockList);
 }
 
 function getProductStock(productName) {
   const stockList = getStockList();
   const product = stockList.find((item) => item.name === productName);
 
-  return product ? product.quantity : 0;
+  return product ? Number(product.quantity) : 0;
 }
 
 function getStockStatus(quantity) {
-  if (quantity <= 0) {
+  const qty = Number(quantity);
+
+  if (qty <= 0) {
     return {
       text: "Esgotado",
-      className: "stock-empty"
+      className: "status-zero",
+      badgeClass: "stock-empty"
     };
   }
 
-  if (quantity <= 5) {
+  if (qty <= 5) {
     return {
       text: "Estoque baixo",
-      className: "stock-low"
+      className: "status-baixo",
+      badgeClass: "stock-low"
     };
   }
 
   return {
     text: "Disponível",
-    className: "stock-available"
+    className: "status-ok",
+    badgeClass: "stock-available"
   };
 }
 
@@ -115,12 +171,7 @@ function decreaseStock(productName, quantity) {
 
   if (!product) return;
 
-  product.quantity -= quantity;
-
-  if (product.quantity < 0) {
-    product.quantity = 0;
-  }
-
+  product.quantity = Math.max(0, Number(product.quantity) - Number(quantity));
   saveStockList(stockList);
 }
 
@@ -130,9 +181,9 @@ function updateProductStock(productName, newQuantity) {
 
   if (!product) return;
 
-  product.quantity = Number(newQuantity);
-
+  product.quantity = Math.max(0, Number(newQuantity));
   saveStockList(stockList);
+
   renderProductStockBadges();
   renderStockTable();
 }
@@ -147,7 +198,7 @@ function resetStockSystem() {
 
   if (!confirmReset) return;
 
-  localStorage.setItem("pedrinhoStock", JSON.stringify(defaultStock));
+  setStorage("pedrinhoStock", defaultStock);
 
   addAdminLog("ESTOQUE_RESTAURADO", "O estoque padrão foi restaurado.", defaultStock);
 
@@ -158,9 +209,9 @@ function resetStockSystem() {
 }
 
 function renderProductStockBadges() {
-  const productCards = document.querySelectorAll(".product-card");
+  const cards = document.querySelectorAll(".produto-card, .product-card");
 
-  productCards.forEach((card) => {
+  cards.forEach((card) => {
     const productName = card.dataset.name;
 
     if (!productName) return;
@@ -174,36 +225,36 @@ function renderProductStockBadges() {
       stockBadge = document.createElement("div");
       stockBadge.className = "stock-badge";
 
-      const productBody = card.querySelector(".product-body");
+      const body = card.querySelector(".produto-body, .product-body");
 
-      if (productBody) {
-        productBody.appendChild(stockBadge);
+      if (body) {
+        body.appendChild(stockBadge);
       }
     }
 
-    stockBadge.className = `stock-badge ${status.className}`;
+    stockBadge.className = `stock-badge ${status.badgeClass}`;
+
+    stockBadge.textContent =
+      quantity <= 0
+        ? "Produto esgotado"
+        : `${status.text} • ${quantity} em estoque`;
+
+    const buyButton = card.querySelector(".botao-comprar, .buy-button");
+
+    if (!buyButton) return;
+
+    if (!buyButton.dataset.originalText) {
+      buyButton.dataset.originalText = buyButton.textContent.trim();
+    }
 
     if (quantity <= 0) {
-      stockBadge.textContent = "Produto esgotado";
+      buyButton.disabled = true;
+      buyButton.textContent = "Esgotado";
+      buyButton.classList.add("disabled-button");
     } else {
-      stockBadge.textContent = `${status.text} • ${quantity} em estoque`;
-    }
-
-    const buyButton = card.querySelector(".buy-button");
-
-    if (buyButton) {
-      if (quantity <= 0) {
-        buyButton.disabled = true;
-        buyButton.textContent = "Esgotado";
-        buyButton.classList.add("disabled-button");
-      } else {
-        buyButton.disabled = false;
-        buyButton.classList.remove("disabled-button");
-
-        if (buyButton.textContent.trim() === "Esgotado") {
-          buyButton.textContent = buyButton.dataset.originalText || "Comprar";
-        }
-      }
+      buyButton.disabled = false;
+      buyButton.textContent = buyButton.dataset.originalText;
+      buyButton.classList.remove("disabled-button");
     }
   });
 }
@@ -214,7 +265,11 @@ function renderStockTable() {
   if (!tableBody) return;
 
   if (!isAdmin()) {
-    tableBody.innerHTML = "";
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="5">Acesso restrito para administradores.</td>
+      </tr>
+    `;
     return;
   }
 
@@ -224,15 +279,13 @@ function renderStockTable() {
 
   stockList.forEach((product) => {
     const status = getStockStatus(product.quantity);
-    const inputId = `stock-${product.name.replaceAll(" ", "-")}`;
+    const inputId = `stock-${createSafeId(product.name)}`;
 
     const row = document.createElement("tr");
 
     row.innerHTML = `
       <td><strong>${product.name}</strong></td>
-
       <td>${product.category}</td>
-
       <td>
         <input
           type="number"
@@ -241,13 +294,11 @@ function renderStockTable() {
           id="${inputId}"
         />
       </td>
-
       <td>
-        <span class="stock-status ${status.className}">
+        <span class="${status.className}">
           ${status.text}
         </span>
       </td>
-
       <td>
         <button
           type="button"
@@ -269,15 +320,15 @@ function saveStockFromInput(productName) {
     return;
   }
 
-  const inputId = `stock-${productName.replaceAll(" ", "-")}`;
+  const inputId = `stock-${createSafeId(productName)}`;
   const input = document.getElementById(inputId);
 
   if (!input) return;
 
   const newQuantity = Number(input.value);
 
-  if (newQuantity < 0) {
-    alert("O estoque não pode ser negativo.");
+  if (Number.isNaN(newQuantity) || newQuantity < 0) {
+    alert("Informe uma quantidade válida.");
     return;
   }
 
@@ -295,7 +346,7 @@ function saveStockFromInput(productName) {
    CARRINHO
 ================================ */
 
-let cart = JSON.parse(localStorage.getItem("pedrinhoCart")) || [];
+let cart = getStorage("pedrinhoCart", []);
 
 const cartSidebar = document.querySelector("#cart-sidebar");
 const cartOverlay = document.querySelector("#cart-overlay");
@@ -303,33 +354,25 @@ const cartItems = document.querySelector("#cart-items");
 const cartCount = document.querySelector("#cart-count");
 const cartTotal = document.querySelector("#cart-total");
 
-function formatMoney(value) {
-  return Number(value).toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL"
-  });
-}
-
 function saveCart() {
-  localStorage.setItem("pedrinhoCart", JSON.stringify(cart));
+  setStorage("pedrinhoCart", cart);
 }
 
 function getCartTotal() {
   return cart.reduce((total, item) => {
-    return total + item.price * item.quantity;
+    return total + Number(item.price) * Number(item.quantity);
   }, 0);
 }
 
 function getCartQuantity() {
   return cart.reduce((total, item) => {
-    return total + item.quantity;
+    return total + Number(item.quantity);
   }, 0);
 }
 
 function getCartProductQuantity(productName) {
   const product = cart.find((item) => item.name === productName);
-
-  return product ? product.quantity : 0;
+  return product ? Number(product.quantity) : 0;
 }
 
 function addToCart(name, price, image) {
@@ -353,7 +396,7 @@ function addToCart(name, price, image) {
   } else {
     cart.push({
       name,
-      price,
+      price: Number(price),
       image,
       quantity: 1
     });
@@ -366,6 +409,9 @@ function addToCart(name, price, image) {
 
 function increaseQuantity(index) {
   const item = cart[index];
+
+  if (!item) return;
+
   const stockQuantity = getProductStock(item.name);
 
   if (item.quantity >= stockQuantity) {
@@ -380,6 +426,8 @@ function increaseQuantity(index) {
 }
 
 function decreaseQuantity(index) {
+  if (!cart[index]) return;
+
   if (cart[index].quantity > 1) {
     cart[index].quantity -= 1;
   } else {
@@ -391,6 +439,8 @@ function decreaseQuantity(index) {
 }
 
 function removeFromCart(index) {
+  if (!cart[index]) return;
+
   cart.splice(index, 1);
 
   saveCart();
@@ -405,7 +455,6 @@ function clearCart() {
   if (!confirmClear) return;
 
   cart = [];
-
   saveCart();
   renderCart();
 }
@@ -488,7 +537,7 @@ function finishOrder() {
 
   const loggedUser = getLoggedUser();
 
-  const items = cart
+  const itemsText = cart
     .map((item) => {
       return `${item.quantity}x ${item.name} - ${formatMoney(item.price * item.quantity)}`;
     })
@@ -504,7 +553,7 @@ function finishOrder() {
   const message =
     `Olá! Gostaria de finalizar meu pedido na Pedrinho Farmácias:\n\n` +
     customerText +
-    `${items}\n\n` +
+    `${itemsText}\n\n` +
     `Total: ${totalFormatted}`;
 
   registerAdminSale({
@@ -520,7 +569,7 @@ function finishOrder() {
           role: "guest"
         },
     items: cart,
-    total: total,
+    total,
     grossTotal: total
   });
 
@@ -533,6 +582,7 @@ function finishOrder() {
 
   renderCart();
   renderProductStockBadges();
+  renderStockTable();
   renderAdminDashboard();
 
   const phone = "555596601385";
@@ -546,16 +596,18 @@ function finishOrder() {
 ================================ */
 
 const productSearch = document.querySelector("#product-search");
-const productCards = document.querySelectorAll(".product-card");
+const productCards = document.querySelectorAll(".produto-card, .product-card");
 const filterButtons = document.querySelectorAll(".filter-btn");
 
 let activeFilter = "all";
 
 function filterProducts() {
-  const searchTerm = productSearch ? productSearch.value.toLowerCase().trim() : "";
+  const searchTerm = productSearch
+    ? normalizeText(productSearch.value)
+    : "";
 
   productCards.forEach((card) => {
-    const name = card.dataset.name.toLowerCase();
+    const name = normalizeText(card.dataset.name);
     const category = card.dataset.category;
 
     const matchesSearch = name.includes(searchTerm);
@@ -572,21 +624,23 @@ if (productSearch) {
 filterButtons.forEach((button) => {
   button.addEventListener("click", () => {
     filterButtons.forEach((btn) => btn.classList.remove("active"));
-    button.classList.add("active");
 
-    activeFilter = button.dataset.filter;
+    button.classList.add("active");
+    activeFilter = button.dataset.filter || "all";
 
     filterProducts();
   });
 });
 
 /* ===============================
-   NEWSLETTER / FORMS SIMPLES
+   NEWSLETTER
 ================================ */
 
-const forms = document.querySelectorAll("form:not(#login-form):not(#register-form)");
+const simpleForms = document.querySelectorAll(
+  "form:not(#login-form):not(#register-form)"
+);
 
-forms.forEach((form) => {
+simpleForms.forEach((form) => {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
 
@@ -599,7 +653,6 @@ forms.forEach((form) => {
     }
 
     alert("Cadastro realizado com sucesso!");
-
     form.reset();
   });
 });
@@ -614,19 +667,19 @@ const userPanel = document.querySelector("#user-panel");
 const userMessage = document.querySelector("#user-message");
 
 function getUsers() {
-  return JSON.parse(localStorage.getItem("pedrinhoUsers")) || [];
+  return getStorage("pedrinhoUsers", []);
 }
 
 function saveUsers(users) {
-  localStorage.setItem("pedrinhoUsers", JSON.stringify(users));
+  setStorage("pedrinhoUsers", users);
 }
 
 function getLoggedUser() {
-  return JSON.parse(localStorage.getItem("pedrinhoLoggedUser"));
+  return getStorage("pedrinhoLoggedUser", null);
 }
 
 function setLoggedUser(user) {
-  localStorage.setItem("pedrinhoLoggedUser", JSON.stringify(user));
+  setStorage("pedrinhoLoggedUser", user);
 }
 
 function initDefaultAdmin() {
@@ -648,7 +701,6 @@ function initDefaultAdmin() {
 
 function isAdmin() {
   const loggedUser = getLoggedUser();
-
   return loggedUser && loggedUser.role === "admin";
 }
 
@@ -678,27 +730,15 @@ function updateNavbarPermissions() {
   const userNameElements = document.querySelectorAll(".user-name");
 
   adminOnlyElements.forEach((element) => {
-    if (loggedUser && loggedUser.role === "admin") {
-      element.classList.remove("hidden");
-    } else {
-      element.classList.add("hidden");
-    }
+    element.classList.toggle("hidden", !(loggedUser && loggedUser.role === "admin"));
   });
 
   userOnlyElements.forEach((element) => {
-    if (loggedUser) {
-      element.classList.remove("hidden");
-    } else {
-      element.classList.add("hidden");
-    }
+    element.classList.toggle("hidden", !loggedUser);
   });
 
   guestOnlyElements.forEach((element) => {
-    if (loggedUser) {
-      element.classList.add("hidden");
-    } else {
-      element.classList.remove("hidden");
-    }
+    element.classList.toggle("hidden", !!loggedUser);
   });
 
   userNameElements.forEach((element) => {
@@ -806,9 +846,9 @@ if (registerForm) {
   registerForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    const name = document.querySelector("#register-name").value.trim();
-    const email = document.querySelector("#register-email").value.trim().toLowerCase();
-    const password = document.querySelector("#register-password").value.trim();
+    const name = document.querySelector("#register-name")?.value.trim();
+    const email = document.querySelector("#register-email")?.value.trim().toLowerCase();
+    const password = document.querySelector("#register-password")?.value.trim();
 
     if (!name || !email || !password) {
       alert("Preencha todos os campos.");
@@ -821,7 +861,6 @@ if (registerForm) {
     }
 
     const users = getUsers();
-
     const userExists = users.some((user) => user.email === email);
 
     if (userExists) {
@@ -864,8 +903,8 @@ if (loginForm) {
   loginForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    const email = document.querySelector("#login-email").value.trim().toLowerCase();
-    const password = document.querySelector("#login-password").value.trim();
+    const email = document.querySelector("#login-email")?.value.trim().toLowerCase();
+    const password = document.querySelector("#login-password")?.value.trim();
 
     const users = getUsers();
 
@@ -910,27 +949,27 @@ if (loginForm) {
 ================================ */
 
 function getAdminSales() {
-  return JSON.parse(localStorage.getItem("pedrinhoAdminSales")) || [];
+  return getStorage("pedrinhoAdminSales", []);
 }
 
 function saveAdminSales(sales) {
-  localStorage.setItem("pedrinhoAdminSales", JSON.stringify(sales));
+  setStorage("pedrinhoAdminSales", sales);
 }
 
 function getAdminInvoices() {
-  return JSON.parse(localStorage.getItem("pedrinhoAdminInvoices")) || [];
+  return getStorage("pedrinhoAdminInvoices", []);
 }
 
 function saveAdminInvoices(invoices) {
-  localStorage.setItem("pedrinhoAdminInvoices", JSON.stringify(invoices));
+  setStorage("pedrinhoAdminInvoices", invoices);
 }
 
 function getAdminLogs() {
-  return JSON.parse(localStorage.getItem("pedrinhoAdminLogs")) || [];
+  return getStorage("pedrinhoAdminLogs", []);
 }
 
 function saveAdminLogs(logs) {
-  localStorage.setItem("pedrinhoAdminLogs", JSON.stringify(logs));
+  setStorage("pedrinhoAdminLogs", logs);
 }
 
 function generateInvoiceNumber() {
@@ -963,9 +1002,9 @@ function registerAdminSale(orderData) {
   const cleanItems = orderData.items.map((item) => {
     return {
       name: item.name,
-      price: item.price,
-      quantity: item.quantity,
-      subtotal: item.price * item.quantity
+      price: Number(item.price),
+      quantity: Number(item.quantity),
+      subtotal: Number(item.price) * Number(item.quantity)
     };
   });
 
@@ -974,8 +1013,8 @@ function registerAdminSale(orderData) {
     invoiceNumber,
     customer: orderData.customer,
     items: cleanItems,
-    total: orderData.total,
-    grossTotal: orderData.grossTotal,
+    total: Number(orderData.total),
+    grossTotal: Number(orderData.grossTotal),
     date: new Date().toLocaleString("pt-BR")
   };
 
@@ -983,8 +1022,8 @@ function registerAdminSale(orderData) {
     number: invoiceNumber,
     customer: orderData.customer,
     items: cleanItems,
-    total: orderData.total,
-    grossTotal: orderData.grossTotal,
+    total: Number(orderData.total),
+    grossTotal: Number(orderData.grossTotal),
     date: sale.date
   };
 
@@ -1011,8 +1050,8 @@ function getProductSalesRanking() {
         };
       }
 
-      ranking[item.name].quantity += item.quantity;
-      ranking[item.name].total += item.subtotal;
+      ranking[item.name].quantity += Number(item.quantity);
+      ranking[item.name].total += Number(item.subtotal);
     });
   });
 
@@ -1029,16 +1068,17 @@ function renderAdminDashboard() {
   const invoicesTable = document.querySelector("#admin-invoices-table");
   const rawLogsElement = document.querySelector("#admin-raw-logs");
 
-  if (
-    !totalSalesElement &&
-    !grossSalesElement &&
-    !topProductElement &&
-    !chartElement &&
-    !invoicesTable &&
-    !rawLogsElement
-  ) {
-    return;
-  }
+  const hasAdminElements =
+    totalSalesElement ||
+    grossSalesElement ||
+    topProductElement ||
+    topProductQtyElement ||
+    invoiceCountElement ||
+    chartElement ||
+    invoicesTable ||
+    rawLogsElement;
+
+  if (!hasAdminElements) return;
 
   if (!isAdmin()) return;
 
@@ -1090,21 +1130,24 @@ function renderAdminDashboard() {
           ? Math.round((product.quantity / maxQuantity) * 100)
           : 0;
 
-        const bar = document.createElement("div");
-        bar.className = "admin-chart-row";
+        const row = document.createElement("div");
+        row.className = "chart-row";
 
-        bar.innerHTML = `
-          <div class="admin-chart-info">
-            <strong>${index + 1}. ${product.name}</strong>
-            <span>${product.quantity} unidades • ${formatMoney(product.total)}</span>
+        row.innerHTML = `
+          <div class="chart-label">
+            ${index + 1}. ${product.name}
           </div>
 
-          <div class="admin-chart-bar">
-            <div style="width: ${percentage}%"></div>
+          <div class="chart-bar-wrap">
+            <div class="chart-bar" style="width: ${percentage}%"></div>
+          </div>
+
+          <div class="chart-value">
+            ${product.quantity}
           </div>
         `;
 
-        chartElement.appendChild(bar);
+        chartElement.appendChild(row);
       });
     }
   }
@@ -1139,11 +1182,9 @@ function renderAdminDashboard() {
   }
 
   if (rawLogsElement) {
-    if (!logs.length) {
-      rawLogsElement.textContent = "Nenhum log registrado.";
-    } else {
-      rawLogsElement.textContent = JSON.stringify(logs, null, 2);
-    }
+    rawLogsElement.textContent = logs.length
+      ? JSON.stringify(logs, null, 2)
+      : "Nenhum log registrado.";
   }
 }
 
@@ -1191,25 +1232,27 @@ function resetAdminData() {
    INICIALIZAÇÃO
 ================================ */
 
-initDefaultAdmin();
-getStockList();
+document.addEventListener("DOMContentLoaded", () => {
+  initDefaultAdmin();
+  getStockList();
 
-const loggedUser = getLoggedUser();
+  const loggedUser = getLoggedUser();
 
-if (loggedUser && userPanel) {
-  showUserPanel(loggedUser);
-}
-
-updateNavbarPermissions();
-protectAdminPages();
-
-document.querySelectorAll(".buy-button").forEach((button) => {
-  if (!button.dataset.originalText) {
-    button.dataset.originalText = button.textContent.trim();
+  if (loggedUser && userPanel) {
+    showUserPanel(loggedUser);
   }
-});
 
-renderCart();
-renderProductStockBadges();
-renderStockTable();
-renderAdminDashboard();
+  updateNavbarPermissions();
+  protectAdminPages();
+
+  document.querySelectorAll(".botao-comprar, .buy-button").forEach((button) => {
+    if (!button.dataset.originalText) {
+      button.dataset.originalText = button.textContent.trim();
+    }
+  });
+
+  renderCart();
+  renderProductStockBadges();
+  renderStockTable();
+  renderAdminDashboard();
+});

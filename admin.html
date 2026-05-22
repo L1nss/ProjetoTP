@@ -2,68 +2,69 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Painel Admin | Pedrinho Farmácias</title>
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-  <nav class="container-fluid">
-    <ul>
-      <li>
-        <strong>💚 Pedrinho Farmácias</strong>
-      </li>
-    </ul>
+  <header class="topo">
+    <div class="logo">
+      <a href="index.html">
+        <strong>Pedrinho Farmácias</strong>
+      </a>
+    </div>
 
-    <ul>
-      <li><a href="index.html">Início</a></li>
-      <li><a href="medicamentos.html">Medicamentos</a></li>
-      <li><a href="servicos.html">Serviços</a></li>
-      <li><a href="perfumaria.html">Perfumaria</a></li>
+    <div class="acoes-topo">
+      <a href="index.html" class="botao-voltar">
+        Início
+      </a>
 
-      <li class="admin-only hidden">
-        <a href="admin.html">Painel Admin</a>
-      </li>
+      <a href="estoque.html" class="botao-voltar admin-only hidden">
+        Estoque
+      </a>
 
-      <li class="admin-only hidden">
-        <a href="estoque.html">Estoque</a>
-      </li>
+      <button class="botao-sair user-only hidden" type="button" onclick="logoutUser()">
+        Sair
+      </button>
 
-      <li class="guest-only">
-        <a href="login.html">Login</a>
-      </li>
-
-      <li class="user-only hidden">
-        <span class="user-name"></span>
-      </li>
-
-      <li class="user-only hidden">
-        <button class="logout-nav-button" type="button" onclick="logoutUser()">
-          Sair
-        </button>
-      </li>
-    </ul>
-  </nav>
+      <a href="login.html" class="login-imagem guest-only">
+        <img
+          src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80"
+          alt="Login"
+        />
+      </a>
+    </div>
+  </header>
 
   <main class="container admin-page">
 
     <section class="admin-hero">
-      <span>Painel do administrador</span>
+      <div>
+        <span>Painel do administrador</span>
 
-      <h1>Resumo administrativo da Pedrinho Farmácias</h1>
+        <h1>Resumo administrativo da Pedrinho Farmácias</h1>
 
-      <p>
-        Acompanhe vendas, faturamento, produtos mais vendidos, notas fiscais
-        emitidas e logs brutos do sistema.
-      </p>
+        <p>
+          Acompanhe vendas, faturamento, produtos mais vendidos, notas fiscais
+          emitidas e logs brutos do sistema.
+        </p>
 
-      <div class="admin-hero-actions">
-        <a href="estoque.html">Gerenciar estoque</a>
-        <button type="button" onclick="resetAdminData()">Limpar dados administrativos</button>
+        <div class="admin-hero-actions">
+          <a href="estoque.html">Gerenciar estoque</a>
+
+          <button type="button" onclick="resetAdminData()">
+            Limpar dados
+          </button>
+        </div>
+      </div>
+
+      <div class="admin-hero-card">
+        <strong>Admin</strong>
+        <p>Área exclusiva para controle interno da loja.</p>
       </div>
     </section>
 
@@ -154,14 +155,31 @@
 
   </main>
 
-  <footer class="container">
-    <small>
-      <a href="index.html">Início</a> •
-      <a href="estoque.html">Estoque</a> •
-      © 2026 Pedrinho Farmácias
-    </small>
+  <footer class="rodape">
+    <p>© 2026 Pedrinho Farmácias</p>
   </footer>
+<div class="payment-modal" id="payment-modal">
+  <div class="payment-box">
+    <button class="payment-close" type="button" onclick="closePaymentModal()">
+      ×
+    </button>
 
-  <script src="script.js"></script>
+    <h2>Pagamento do pedido</h2>
+    <p>Escaneie o QR Code abaixo para finalizar sua compra.</p>
+
+    <div id="payment-qrcode" class="payment-qrcode"></div>
+
+    <div class="payment-info">
+      <strong id="payment-total">R$ 0,00</strong>
+      <span>Pagamento via QR Code</span>
+    </div>
+
+    <button type="button" class="payment-confirm" onclick="confirmPayment()">
+      Confirmar pagamento
+    </button>
+  </div>
+</div>  <script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

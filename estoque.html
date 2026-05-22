@@ -2,66 +2,74 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Controle de Estoque | Pedrinho Farmácias</title>
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-  <nav class="container-fluid">
-    <ul>
-      <li>
+  <header class="topo">
+    <div class="logo">
+      <a href="index.html">
         <strong>Pedrinho Farmácias</strong>
-      </li>
-    </ul>
+      </a>
+    </div>
 
-    <ul>
-      <li><a href="index.html">Início</a></li>
-      
-      <li class="admin-only hidden">
-        <a href="estoque.html">Estoque</a>
-      </li>
+    <div class="acoes-topo">
+      <a href="index.html" class="botao-voltar">
+        Início
+      </a>
 
-      <li class="guest-only">
-        <a href="login.html">Login</a>
-      </li>
+      <button class="botao-sair user-only hidden" type="button" onclick="logoutUser()">
+        Sair
+      </button>
 
-      <li class="user-only hidden">
-        <button class="logout-nav-button" type="button" onclick="logoutUser()">
-          Sair
-        </button>
-      </li>
-    </ul>
-  </nav>
+      <a href="login.html" class="login-imagem guest-only">
+        <img
+          src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80"
+          alt="Login"
+        />
+      </a>
+    </div>
+  </header>
 
   <main class="container estoque-page">
-    <section>
 
-      <div class="section-title">
+    <section class="estoque-hero">
+      <div>
+        <span>Área administrativa</span>
+
+        <h1>Controle de estoque</h1>
+
+        <p>
+          Gerencie a quantidade disponível de medicamentos, perfumaria e serviços
+          da Pedrinho Farmácias de forma simples e organizada.
+        </p>
+      </div>
+
+      <div class="estoque-card-info">
+        <strong>Acesso restrito</strong>
+        <p>Essa página deve ser acessada apenas por usuários administradores.</p>
+      </div>
+    </section>
+
+    <section class="aviso">
+      <strong>Atenção:</strong>
+      somente administradores podem visualizar e alterar o estoque da loja.
+    </section>
+
+    <section class="painel-estoque">
+
+      <div class="estoque-topo">
         <div>
-          <hgroup>
-            <h2>Controle de estoque</h2>
-            <h3>Área administrativa da Pedrinho Farmácias</h3>
-          </hgroup>
-
-          <p>
-            Gerencie a quantidade disponível de medicamentos, perfumaria e serviços.
-            Essa página só pode ser acessada por usuários administradores.
-          </p>
+          <h2>Produtos cadastrados</h2>
+          <p>Atualize, visualize e acompanhe o status dos itens.</p>
         </div>
-      </div>
 
-      <div class="pharmacy-warning">
-        <strong>Acesso restrito:</strong>
-        somente administradores podem visualizar e alterar o estoque da loja.
-      </div>
-
-      <div class="stock-actions">
-        <button type="button" onclick="resetStockSystem()">
+        <button type="button" class="botao-restaurar" onclick="resetStockSystem()">
           Restaurar estoque padrão
         </button>
       </div>
@@ -84,16 +92,35 @@
       </div>
 
     </section>
+
   </main>
 
-  <footer class="container">
-    <small>
-      <a href="index.html">Início</a> •
-      © 2026 Pedrinho Farmácias
-    </small>
+  <footer class="rodape">
+    <p>© 2026 Pedrinho Farmácias</p>
   </footer>
+<div class="payment-modal" id="payment-modal">
+  <div class="payment-box">
+    <button class="payment-close" type="button" onclick="closePaymentModal()">
+      ×
+    </button>
 
+    <h2>Pagamento do pedido</h2>
+    <p>Escaneie o QR Code abaixo para finalizar sua compra.</p>
+
+    <div id="payment-qrcode" class="payment-qrcode"></div>
+
+    <div class="payment-info">
+      <strong id="payment-total">R$ 0,00</strong>
+      <span>Pagamento via QR Code</span>
+    </div>
+
+    <button type="button" class="payment-confirm" onclick="confirmPayment()">
+      Confirmar pagamento
+    </button>
+  </div>
+</div>
   <script src="script.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

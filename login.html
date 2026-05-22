@@ -2,50 +2,53 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Login | Pedrinho Farmácias</title>
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-  <nav class="container-fluid">
-    <ul>
-      <li>
+  <header class="topo">
+    <div class="logo">
+      <a href="index.html">
         <strong>Pedrinho Farmácias</strong>
-      </li>
-    </ul>
+      </a>
+    </div>
 
-    <ul>
-      <li><a href="index.html">Início</a></li>
-      <li><a href="medicamentos.html">Medicamentos</a></li>
-      <li><a href="servicos.html">Serviços</a></li>
-      <li><a href="perfumaria.html">Perfumaria</a></li>
-      <li><a href="estoque.html">Estoque</a></li>
-    </ul>
-  </nav>
+    <div class="acoes-topo">
+      <button class="botao-carrinho" type="button" onclick="openCart()">
+        🛒 Carrinho
+        <span id="cart-count">0</span>
+      </button>
 
-  <main class="container modern-login-page">
+      <a href="login.html" class="login-imagem">
+        <img
+          src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80"
+          alt="Login"
+        />
+      </a>
+    </div>
+  </header>
 
-    <section class="modern-login-wrapper">
+  <main class="container login-page">
 
-      <aside class="modern-login-hero">
-        <div class="login-hero-overlay"></div>
+    <section class="login-wrapper">
 
-        <div class="modern-login-hero-content">
+      <aside class="login-hero">
+        <div class="login-hero-content">
           <span class="login-pill">Área do cliente</span>
 
           <h1>Entre na sua conta Pedrinho Farmácias</h1>
 
           <p>
-            Acesse sua conta para acompanhar compras, finalizar pedidos pelo WhatsApp,
-            salvar seus dados e receber ofertas exclusivas.
+            Acesse sua conta para acompanhar compras, salvar seus dados,
+            finalizar pedidos e receber ofertas exclusivas.
           </p>
 
-          <div class="modern-login-stats">
+          <div class="login-stats">
             <div>
               <strong>+100</strong>
               <span>produtos</span>
@@ -64,10 +67,13 @@
         </div>
       </aside>
 
-      <section class="modern-login-card">
+      <section class="login-card">
 
-        <div class="modern-login-brand">
-          <div class="modern-login-icon"></div>
+        <div class="login-brand">
+          <img
+            src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80"
+            alt="Perfil do usuário"
+          />
 
           <div>
             <strong>Pedrinho Farmácias</strong>
@@ -75,7 +81,7 @@
           </div>
         </div>
 
-        <div class="modern-login-tabs">
+        <div class="login-tabs">
           <button type="button" class="tab-button active" onclick="showLogin()">
             Entrar
           </button>
@@ -85,7 +91,7 @@
           </button>
         </div>
 
-        <form id="login-form" class="modern-form">
+        <form id="login-form" class="login-form">
           <div class="form-title">
             <h2>Bem-vindo de volta</h2>
             <p>Entre com seu e-mail e senha para continuar.</p>
@@ -93,7 +99,6 @@
 
           <label for="login-email">E-mail</label>
           <div class="input-group">
-            <span>✉️</span>
             <input
               type="email"
               id="login-email"
@@ -104,7 +109,6 @@
 
           <label for="login-password">Senha</label>
           <div class="input-group">
-            <span>🔒</span>
             <input
               type="password"
               id="login-password"
@@ -119,22 +123,26 @@
               <span>Lembrar de mim</span>
             </label>
 
-            <button type="button" class="forgot-button" onclick="alert('Recuperação de senha ainda não configurada.')">
+            <button
+              type="button"
+              class="forgot-button"
+              onclick="alert('Recuperação de senha ainda não configurada.')"
+            >
               Esqueci a senha
             </button>
           </div>
 
-          <button type="submit" class="modern-login-button">
+          <button type="submit" class="login-button">
             Entrar na conta
           </button>
 
-          <p class="modern-login-switch">
+          <p class="login-switch">
             Ainda não tem uma conta?
             <button type="button" onclick="showRegister()">Criar agora</button>
           </p>
         </form>
 
-        <form id="register-form" class="modern-form hidden">
+        <form id="register-form" class="login-form hidden">
           <div class="form-title">
             <h2>Crie sua conta</h2>
             <p>Cadastre-se para uma experiência mais completa.</p>
@@ -142,7 +150,6 @@
 
           <label for="register-name">Nome completo</label>
           <div class="input-group">
-            <span>👤</span>
             <input
               type="text"
               id="register-name"
@@ -153,7 +160,6 @@
 
           <label for="register-email">E-mail</label>
           <div class="input-group">
-            <span>✉️</span>
             <input
               type="email"
               id="register-email"
@@ -164,7 +170,6 @@
 
           <label for="register-password">Senha</label>
           <div class="input-group">
-            <span>🔒</span>
             <input
               type="password"
               id="register-password"
@@ -174,29 +179,32 @@
             />
           </div>
 
-          <button type="submit" class="modern-login-button">
+          <button type="submit" class="login-button">
             Criar minha conta
           </button>
 
-          <p class="modern-login-switch">
+          <p class="login-switch">
             Já tem conta?
             <button type="button" onclick="showLogin()">Fazer login</button>
           </p>
         </form>
 
-        <div id="user-panel" class="modern-user-panel hidden">
-          <div class="modern-user-avatar"></div>
+        <div id="user-panel" class="user-panel hidden">
+          <img
+            src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80"
+            alt="Usuário logado"
+          />
 
           <h2>Login realizado</h2>
 
           <p id="user-message"></p>
 
-          <div class="modern-user-actions">
-            <a href="index.html" class="modern-login-button">
+          <div class="user-actions">
+            <a href="index.html" class="login-button">
               Ir para a loja
             </a>
 
-            <button type="button" class="modern-logout-button" onclick="logoutUser()">
+            <button type="button" class="logout-button" onclick="logoutUser()">
               Sair da conta
             </button>
           </div>
@@ -208,17 +216,31 @@
 
   </main>
 
-  <footer class="container">
-    <small>
-      <a href="index.html">Início</a> •
-      <a href="medicamentos.html">Medicamentos</a> •
-      <a href="servicos.html">Serviços</a> •
-      <a href="perfumaria.html">Perfumaria</a> •
-      © 2026 Pedrinho Farmácias
-    </small>
+  <footer class="rodape">
+    <p>© 2026 Pedrinho Farmácias</p>
   </footer>
 
   <script src="script.js"></script>
+<div class="payment-modal" id="payment-modal">
+  <div class="payment-box">
+    <button class="payment-close" type="button" onclick="closePaymentModal()">
+      ×
+    </button>
 
+    <h2>Pagamento do pedido</h2>
+    <p>Escaneie o QR Code abaixo para finalizar sua compra.</p>
+
+    <div id="payment-qrcode" class="payment-qrcode"></div>
+
+    <div class="payment-info">
+      <strong id="payment-total">R$ 0,00</strong>
+      <span>Pagamento via QR Code</span>
+    </div>
+
+    <button type="button" class="payment-confirm" onclick="confirmPayment()">
+      Confirmar pagamento
+    </button>
+  </div>
+</div>
 </body>
 </html>
