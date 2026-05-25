@@ -3,244 +3,135 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>Login | Pedrinho Farmácias</title>
-
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-  <header class="topo">
-    <div class="logo">
-      <a href="index.html">
-        <strong>Pedrinho Farmácias</strong>
-      </a>
-    </div>
+<header class="topo">
+  <div class="logo">
+    <a href="index.html"><strong>Pedrinho Farmácias</strong></a>
+  </div>
+  <nav class="acoes-topo">
+    <a href="index.html" class="botao-voltar">← Início</a>
+  </nav>
+</header>
 
-    <div class="acoes-topo">
-      <button class="botao-carrinho" type="button" onclick="openCart()">
-        🛒 Carrinho
-        <span id="cart-count">0</span>
-      </button>
+<main class="container login-page">
+  <section class="login-wrapper">
 
-      <a href="login.html" class="login-imagem">
-        <img
-          src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80"
-          alt="Login"
-        />
-      </a>
-    </div>
-  </header>
-
-  <main class="container login-page">
-
-    <section class="login-wrapper">
-
-      <aside class="login-hero">
-        <div class="login-hero-content">
-          <span class="login-pill">Área do cliente</span>
-
-          <h1>Entre na sua conta Pedrinho Farmácias</h1>
-
-          <p>
-            Acesse sua conta para acompanhar compras, salvar seus dados,
-            finalizar pedidos e receber ofertas exclusivas.
-          </p>
-
-          <div class="login-stats">
-            <div>
-              <strong>+100</strong>
-              <span>produtos</span>
-            </div>
-
-            <div>
-              <strong>24h</strong>
-              <span>atendimento</span>
-            </div>
-
-            <div>
-              <strong>35%</strong>
-              <span>em ofertas</span>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      <section class="login-card">
-
-        <div class="login-brand">
-          <img
-            src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80"
-            alt="Perfil do usuário"
-          />
-
+    <aside class="login-hero">
+      <div class="login-hero-content">
+        <span class="login-pill">Área do cliente</span>
+        <h1>Entre na sua conta Pedrinho Farmácias</h1>
+        <p>Acesse sua conta para acompanhar compras, salvar seus dados, finalizar pedidos e receber ofertas exclusivas para clientes cadastrados.</p>
+        <div class="login-stats">
           <div>
-            <strong>Pedrinho Farmácias</strong>
-            <span>Saúde, cuidado e economia</span>
+            <strong>+100</strong>
+            <span>produtos</span>
+          </div>
+          <div>
+            <strong>24h</strong>
+            <span>atendimento</span>
+          </div>
+          <div>
+            <strong>35%</strong>
+            <span>de desconto</span>
           </div>
         </div>
+      </div>
+    </aside>
 
-        <div class="login-tabs">
-          <button type="button" class="tab-button active" onclick="showLogin()">
-            Entrar
-          </button>
+    <section class="login-card">
 
-          <button type="button" class="tab-button" onclick="showRegister()">
-            Criar conta
-          </button>
+      <div class="login-brand">
+        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80" alt="Perfil do usuário" />
+        <div>
+          <strong>Pedrinho Farmácias</strong>
+          <span>Saúde, cuidado e economia</span>
+        </div>
+      </div>
+
+      <div class="login-tabs">
+        <button type="button" class="tab-button active" onclick="mostrarLogin()">Entrar</button>
+        <button type="button" class="tab-button" onclick="mostrarCadastro()">Criar conta</button>
+      </div>
+
+      <!-- FORM LOGIN -->
+      <form id="login-form" class="login-form">
+        <div class="form-title">
+          <h2>Bem-vindo de volta</h2>
+          <p>Entre com seu e-mail e senha para continuar.</p>
         </div>
 
-        <form id="login-form" class="login-form">
-          <div class="form-title">
-            <h2>Bem-vindo de volta</h2>
-            <p>Entre com seu e-mail e senha para continuar.</p>
-          </div>
-
-          <label for="login-email">E-mail</label>
-          <div class="input-group">
-            <input
-              type="email"
-              id="login-email"
-              placeholder="seuemail@exemplo.com"
-              required
-            />
-          </div>
-
-          <label for="login-password">Senha</label>
-          <div class="input-group">
-            <input
-              type="password"
-              id="login-password"
-              placeholder="Digite sua senha"
-              required
-            />
-          </div>
-
-          <div class="login-options">
-            <label class="remember-box">
-              <input type="checkbox" />
-              <span>Lembrar de mim</span>
-            </label>
-
-            <button
-              type="button"
-              class="forgot-button"
-              onclick="alert('Recuperação de senha ainda não configurada.')"
-            >
-              Esqueci a senha
-            </button>
-          </div>
-
-          <button type="submit" class="login-button">
-            Entrar na conta
-          </button>
-
-          <p class="login-switch">
-            Ainda não tem uma conta?
-            <button type="button" onclick="showRegister()">Criar agora</button>
-          </p>
-        </form>
-
-        <form id="register-form" class="login-form hidden">
-          <div class="form-title">
-            <h2>Crie sua conta</h2>
-            <p>Cadastre-se para uma experiência mais completa.</p>
-          </div>
-
-          <label for="register-name">Nome completo</label>
-          <div class="input-group">
-            <input
-              type="text"
-              id="register-name"
-              placeholder="Digite seu nome"
-              required
-            />
-          </div>
-
-          <label for="register-email">E-mail</label>
-          <div class="input-group">
-            <input
-              type="email"
-              id="register-email"
-              placeholder="seuemail@exemplo.com"
-              required
-            />
-          </div>
-
-          <label for="register-password">Senha</label>
-          <div class="input-group">
-            <input
-              type="password"
-              id="register-password"
-              placeholder="Crie uma senha"
-              minlength="4"
-              required
-            />
-          </div>
-
-          <button type="submit" class="login-button">
-            Criar minha conta
-          </button>
-
-          <p class="login-switch">
-            Já tem conta?
-            <button type="button" onclick="showLogin()">Fazer login</button>
-          </p>
-        </form>
-
-        <div id="user-panel" class="user-panel hidden">
-          <img
-            src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80"
-            alt="Usuário logado"
-          />
-
-          <h2>Login realizado</h2>
-
-          <p id="user-message"></p>
-
-          <div class="user-actions">
-            <a href="index.html" class="login-button">
-              Ir para a loja
-            </a>
-
-            <button type="button" class="logout-button" onclick="logoutUser()">
-              Sair da conta
-            </button>
-          </div>
+        <label for="login-email">E-mail</label>
+        <div class="input-group">
+          <input type="email" id="login-email" placeholder="seuemail@exemplo.com" required />
         </div>
 
-      </section>
+        <label for="login-password">Senha</label>
+        <div class="input-group">
+          <input type="password" id="login-password" placeholder="Digite sua senha" required />
+        </div>
+
+        <button type="submit" class="login-button">Entrar na conta</button>
+
+        <p class="login-switch">
+          Ainda não tem conta?
+          <button type="button" onclick="mostrarCadastro()">Criar agora</button>
+        </p>
+      </form>
+
+      <!-- FORM CADASTRO -->
+      <form id="register-form" class="login-form hidden">
+        <div class="form-title">
+          <h2>Crie sua conta</h2>
+          <p>Cadastre-se para uma experiência mais completa.</p>
+        </div>
+
+        <label for="register-name">Nome completo</label>
+        <div class="input-group">
+          <input type="text" id="register-name" placeholder="Digite seu nome" required />
+        </div>
+
+        <label for="register-email">E-mail</label>
+        <div class="input-group">
+          <input type="email" id="register-email" placeholder="seuemail@exemplo.com" required />
+        </div>
+
+        <label for="register-password">Senha</label>
+        <div class="input-group">
+          <input type="password" id="register-password" placeholder="Crie uma senha (mín. 4 caracteres)" minlength="4" required />
+        </div>
+
+        <button type="submit" class="login-button">Criar minha conta</button>
+
+        <p class="login-switch">
+          Já tem conta?
+          <button type="button" onclick="mostrarLogin()">Fazer login</button>
+        </p>
+      </form>
+
+      <!-- PAINEL USUÁRIO -->
+      <div id="user-panel" class="user-panel hidden">
+        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80" alt="Usuário logado" />
+        <h2>Login realizado!</h2>
+        <p id="user-message"></p>
+        <div class="user-actions">
+          <a href="index.html" class="login-button">Ir para a loja</a>
+          <button type="button" class="logout-button" onclick="sairUsuario()">Sair da conta</button>
+        </div>
+      </div>
 
     </section>
+  </section>
+</main>
 
-  </main>
+<footer class="rodape">
+  <p>© 2026 Pedrinho Farmácias — Saúde, cuidado e economia.</p>
+</footer>
 
-  <footer class="rodape">
-    <p>© 2026 Pedrinho Farmácias</p>
-  </footer>
-
-  <script src="script.js"></script>
-<div class="payment-modal" id="payment-modal">
-  <div class="payment-box">
-    <button class="payment-close" type="button" onclick="closePaymentModal()">
-      ×
-    </button>
-
-    <h2>Pagamento do pedido</h2>
-    <p>Escaneie o QR Code abaixo para finalizar sua compra.</p>
-
-    <div id="payment-qrcode" class="payment-qrcode"></div>
-
-    <div class="payment-info">
-      <strong id="payment-total">R$ 0,00</strong>
-      <span>Pagamento via QR Code</span>
-    </div>
-
-    <button type="button" class="payment-confirm" onclick="confirmPayment()">
-      Confirmar pagamento
-    </button>
-  </div>
-</div>
+<script src="script.js"></script>
 </body>
 </html>

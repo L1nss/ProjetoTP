@@ -1,42 +1,49 @@
 /* =====================================================
-   PEDRINHO FARMÁCIAS - SCRIPT.JS FINAL
-   Carrinho, estoque, login, permissões e painel admin
+   PEDRINHO FARMÁCIAS - SCRIPT.JS COMPLETO CORRIGIDO
+   Funções em português
+   Carrinho, página de pagamento, QR Code, login,
+   estoque, admin e filtros
 ===================================================== */
 
 /* ===============================
    FUNÇÕES ÚTEIS
 ================================ */
 
-function getStorage(key, fallback = null) {
+function obterStorage(chave, valorPadrao = null) {
   try {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : fallback;
-  } catch {
-    return fallback;
+    const dados = localStorage.getItem(chave);
+    return dados ? JSON.parse(dados) : valorPadrao;
+  } catch (erro) {
+    console.error("Erro ao ler localStorage:", erro);
+    return valorPadrao;
   }
 }
 
-function setStorage(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
+function salvarStorage(chave, valor) {
+  try {
+    localStorage.setItem(chave, JSON.stringify(valor));
+  } catch (erro) {
+    console.error("Erro ao salvar localStorage:", erro);
+  }
 }
 
-function formatMoney(value) {
-  return Number(value || 0).toLocaleString("pt-BR", {
+function formatarDinheiro(valor) {
+  return Number(valor || 0).toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL"
   });
 }
 
-function normalizeText(text) {
-  return String(text || "")
+function normalizarTexto(texto) {
+  return String(texto || "")
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .trim();
 }
 
-function createSafeId(text) {
-  return String(text || "")
+function criarIdSeguro(texto) {
+  return String(texto || "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-zA-Z0-9]/g, "-");
@@ -46,297 +53,338 @@ function createSafeId(text) {
    CARROSSEL
 ================================ */
 
-const slides = document.querySelectorAll(".slide");
-const dots = document.querySelectorAll(".dot, .bolinhas span");
+let slideAtual = 0;
+let intervaloCarrossel = null;
 
-let currentSlide = 0;
-let carouselInterval = null;
+function mostrarSlide(indice) {
+  const slides = document.querySelectorAll(".slide");
+  const bolinhas = document.querySelectorAll(".dot, .bolinhas span");
 
-function showSlide(index) {
   if (!slides.length) return;
 
   slides.forEach((slide, i) => {
-    slide.classList.toggle("active", i === index);
+    slide.classList.toggle("active", i === indice);
   });
 
-  dots.forEach((dot, i) => {
-    dot.classList.toggle("active", i === index);
+  bolinhas.forEach((bolinha, i) => {
+    bolinha.classList.toggle("active", i === indice);
   });
 
-  currentSlide = index;
+  slideAtual = indice;
 }
 
-function nextSlide() {
+function proximoSlide() {
+  const slides = document.querySelectorAll(".slide");
+
   if (!slides.length) return;
 
-  const nextIndex = (currentSlide + 1) % slides.length;
-  showSlide(nextIndex);
+  mostrarSlide((slideAtual + 1) % slides.length);
 }
 
-function startCarousel() {
+function iniciarCarrossel() {
+  const slides = document.querySelectorAll(".slide");
+
   if (slides.length <= 1) return;
 
-  carouselInterval = setInterval(nextSlide, 5500);
+  pararCarrossel();
+
+  intervaloCarrossel = setInterval(proximoSlide, 5500);
 }
 
-function stopCarousel() {
-  if (carouselInterval) {
-    clearInterval(carouselInterval);
+function pararCarrossel() {
+  if (intervaloCarrossel) {
+    clearInterval(intervaloCarrossel);
+    intervaloCarrossel = null;
   }
 }
 
-dots.forEach((dot, index) => {
-  dot.addEventListener("click", () => {
-    stopCarousel();
-    showSlide(index);
-    startCarousel();
-  });
-});
+function configurarCarrossel() {
+  const bolinhas = document.querySelectorAll(".dot, .bolinhas span");
 
-showSlide(0);
-startCarousel();
+  bolinhas.forEach((bolinha, indice) => {
+    bolinha.addEventListener("click", () => {
+      pararCarrossel();
+      mostrarSlide(indice);
+      iniciarCarrossel();
+    });
+  });
+
+  mostrarSlide(0);
+  iniciarCarrossel();
+}
 
 /* ===============================
    ESTOQUE
 ================================ */
 
-const defaultStock = [
-  { name: "Kit Medicamentos Essenciais", category: "Medicamentos", quantity: 18 },
-  { name: "Vitaminas e Imunidade", category: "Medicamentos", quantity: 24 },
-  { name: "Combo Skincare", category: "Perfumaria", quantity: 12 },
-  { name: "Medicamento Genérico", category: "Medicamentos", quantity: 30 },
-  { name: "Perfume Especial", category: "Perfumaria", quantity: 9 },
-  { name: "Teste Rápido", category: "Serviços", quantity: 15 },
-  { name: "Analgésico", category: "Medicamentos", quantity: 22 },
-  { name: "Kit Higiene Pessoal", category: "Perfumaria", quantity: 17 },
-  { name: "Perfume Feminino", category: "Perfumaria", quantity: 8 },
-  { name: "Kit Maquiagem", category: "Perfumaria", quantity: 11 },
-  { name: "Aferição de Pressão", category: "Serviços", quantity: 20 },
-  { name: "Testes Rápidos", category: "Serviços", quantity: 14 },
-  { name: "Orientação Farmacêutica", category: "Serviços", quantity: 25 },
-  { name: "Acompanhamento Farmacêutico", category: "Serviços", quantity: 10 }
+const estoquePadrao = [
+  { nome: "Kit Medicamentos Essenciais", categoria: "Medicamentos", quantidade: 18 },
+  { nome: "Medicamento Genérico", categoria: "Medicamentos", quantidade: 30 },
+  { nome: "Vitaminas e Imunidade", categoria: "Medicamentos", quantidade: 24 },
+  { nome: "Analgésico", categoria: "Medicamentos", quantidade: 22 },
+
+  { nome: "Combo Skincare", categoria: "Perfumaria", quantidade: 12 },
+  { nome: "Kit Higiene Pessoal", categoria: "Perfumaria", quantidade: 17 },
+  { nome: "Perfume Feminino", categoria: "Perfumaria", quantidade: 8 },
+  { nome: "Kit Maquiagem", categoria: "Perfumaria", quantidade: 11 },
+
+  { nome: "Aferição de Pressão", categoria: "Serviços", quantidade: 20 },
+  { nome: "Testes Rápidos", categoria: "Serviços", quantidade: 14 },
+  { nome: "Orientação Farmacêutica", categoria: "Serviços", quantidade: 25 },
+  { nome: "Acompanhamento Farmacêutico", categoria: "Serviços", quantidade: 10 }
 ];
 
-function getStockList() {
-  const savedStock = getStorage("pedrinhoStock", null);
+function converterEstoqueAntigo(lista) {
+  if (!Array.isArray(lista)) return null;
 
-  if (!savedStock || !Array.isArray(savedStock)) {
-    setStorage("pedrinhoStock", defaultStock);
-    return [...defaultStock];
+  return lista
+    .map((item) => {
+      return {
+        nome: item.nome || item.name,
+        categoria: item.categoria || item.category,
+        quantidade: Number(item.quantidade ?? item.quantity ?? 0)
+      };
+    })
+    .filter((item) => item.nome);
+}
+
+function obterListaEstoque() {
+  const estoqueSalvo = obterStorage("pedrinhoStock", null);
+  const estoqueConvertido = converterEstoqueAntigo(estoqueSalvo);
+
+  if (!estoqueConvertido || !Array.isArray(estoqueConvertido)) {
+    salvarStorage("pedrinhoStock", estoquePadrao);
+    return [...estoquePadrao];
   }
 
-  return savedStock;
+  return estoqueConvertido;
 }
 
-function saveStockList(stockList) {
-  setStorage("pedrinhoStock", stockList);
+function salvarListaEstoque(listaEstoque) {
+  salvarStorage("pedrinhoStock", listaEstoque);
 }
 
-function getProductStock(productName) {
-  const stockList = getStockList();
-  const product = stockList.find((item) => item.name === productName);
+function obterEstoqueProduto(nomeProduto) {
+  const listaEstoque = obterListaEstoque();
 
-  return product ? Number(product.quantity) : 0;
+  const produto = listaEstoque.find((item) => {
+    return item.nome === nomeProduto;
+  });
+
+  return produto ? Number(produto.quantidade) : 0;
 }
 
-function getStockStatus(quantity) {
-  const qty = Number(quantity);
+function obterStatusEstoque(quantidade) {
+  const qtd = Number(quantidade);
 
-  if (qty <= 0) {
+  if (qtd <= 0) {
     return {
-      text: "Esgotado",
-      className: "status-zero",
-      badgeClass: "stock-empty"
+      texto: "Esgotado",
+      classe: "status-zero",
+      classeBadge: "stock-empty"
     };
   }
 
-  if (qty <= 5) {
+  if (qtd <= 5) {
     return {
-      text: "Estoque baixo",
-      className: "status-baixo",
-      badgeClass: "stock-low"
+      texto: "Estoque baixo",
+      classe: "status-baixo",
+      classeBadge: "stock-low"
     };
   }
 
   return {
-    text: "Disponível",
-    className: "status-ok",
-    badgeClass: "stock-available"
+    texto: "Disponível",
+    classe: "status-ok",
+    classeBadge: "stock-available"
   };
 }
 
-function decreaseStock(productName, quantity) {
-  const stockList = getStockList();
-  const product = stockList.find((item) => item.name === productName);
+function diminuirEstoque(nomeProduto, quantidade) {
+  const listaEstoque = obterListaEstoque();
 
-  if (!product) return;
+  const produto = listaEstoque.find((item) => {
+    return item.nome === nomeProduto;
+  });
 
-  product.quantity = Math.max(0, Number(product.quantity) - Number(quantity));
-  saveStockList(stockList);
+  if (!produto) return;
+
+  produto.quantidade = Math.max(0, Number(produto.quantidade) - Number(quantidade));
+
+  salvarListaEstoque(listaEstoque);
 }
 
-function updateProductStock(productName, newQuantity) {
-  const stockList = getStockList();
-  const product = stockList.find((item) => item.name === productName);
+function atualizarEstoqueProduto(nomeProduto, novaQuantidade) {
+  const listaEstoque = obterListaEstoque();
 
-  if (!product) return;
+  const produto = listaEstoque.find((item) => {
+    return item.nome === nomeProduto;
+  });
 
-  product.quantity = Math.max(0, Number(newQuantity));
-  saveStockList(stockList);
+  if (!produto) return;
 
-  renderProductStockBadges();
-  renderStockTable();
+  produto.quantidade = Math.max(0, Number(novaQuantidade));
+
+  salvarListaEstoque(listaEstoque);
+
+  renderizarBadgesEstoque();
+  renderizarTabelaEstoque();
 }
 
-function resetStockSystem() {
-  if (!isAdmin()) {
+function restaurarEstoquePadrao() {
+  if (!verificarSeAdmin()) {
     alert("Apenas administradores podem restaurar o estoque.");
     return;
   }
 
-  const confirmReset = confirm("Deseja restaurar o estoque padrão?");
+  const confirmar = confirm("Deseja restaurar o estoque padrão?");
 
-  if (!confirmReset) return;
+  if (!confirmar) return;
 
-  setStorage("pedrinhoStock", defaultStock);
+  salvarStorage("pedrinhoStock", estoquePadrao);
 
-  addAdminLog("ESTOQUE_RESTAURADO", "O estoque padrão foi restaurado.", defaultStock);
+  adicionarLogAdmin("ESTOQUE_RESTAURADO", "O estoque padrão foi restaurado.", estoquePadrao);
 
   alert("Estoque restaurado com sucesso!");
 
-  renderProductStockBadges();
-  renderStockTable();
+  renderizarBadgesEstoque();
+  renderizarTabelaEstoque();
 }
 
-function renderProductStockBadges() {
+function renderizarBadgesEstoque() {
   const cards = document.querySelectorAll(".produto-card, .product-card");
 
   cards.forEach((card) => {
-    const productName = card.dataset.name;
+    const nomeProduto = card.dataset.name;
 
-    if (!productName) return;
+    if (!nomeProduto) return;
 
-    const quantity = getProductStock(productName);
-    const status = getStockStatus(quantity);
+    const quantidade = obterEstoqueProduto(nomeProduto);
+    const status = obterStatusEstoque(quantidade);
 
-    let stockBadge = card.querySelector(".stock-badge");
+    let badge = card.querySelector(".stock-badge");
 
-    if (!stockBadge) {
-      stockBadge = document.createElement("div");
-      stockBadge.className = "stock-badge";
+    if (!badge) {
+      badge = document.createElement("div");
 
-      const body = card.querySelector(".produto-body, .product-body");
+      const corpo = card.querySelector(".produto-body, .product-body");
 
-      if (body) {
-        body.appendChild(stockBadge);
+      if (corpo) {
+        corpo.appendChild(badge);
       }
     }
 
-    stockBadge.className = `stock-badge ${status.badgeClass}`;
+    badge.className = `stock-badge ${status.classeBadge}`;
 
-    stockBadge.textContent =
-      quantity <= 0
+    badge.textContent =
+      quantidade <= 0
         ? "Produto esgotado"
-        : `${status.text} • ${quantity} em estoque`;
+        : `${status.texto} • ${quantidade} em estoque`;
 
-    const buyButton = card.querySelector(".botao-comprar, .buy-button");
+    const botao = card.querySelector(".botao-comprar, .buy-button");
 
-    if (!buyButton) return;
+    if (!botao) return;
 
-    if (!buyButton.dataset.originalText) {
-      buyButton.dataset.originalText = buyButton.textContent.trim();
+    if (!botao.dataset.textoOriginal) {
+      botao.dataset.textoOriginal = botao.textContent.trim();
     }
 
-    if (quantity <= 0) {
-      buyButton.disabled = true;
-      buyButton.textContent = "Esgotado";
-      buyButton.classList.add("disabled-button");
+    if (quantidade <= 0) {
+      botao.disabled = true;
+      botao.textContent = "Esgotado";
+      botao.classList.add("disabled-button");
     } else {
-      buyButton.disabled = false;
-      buyButton.textContent = buyButton.dataset.originalText;
-      buyButton.classList.remove("disabled-button");
+      botao.disabled = false;
+      botao.textContent = botao.dataset.textoOriginal;
+      botao.classList.remove("disabled-button");
     }
   });
 }
 
-function renderStockTable() {
-  const tableBody = document.querySelector("#stock-table-body");
+function renderizarTabelaEstoque() {
+  const corpoTabela = document.querySelector("#stock-table-body");
 
-  if (!tableBody) return;
+  if (!corpoTabela) return;
 
-  if (!isAdmin()) {
-    tableBody.innerHTML = `
+  if (!verificarSeAdmin()) {
+    corpoTabela.innerHTML = `
       <tr>
-        <td colspan="5">Acesso restrito para administradores.</td>
+        <td colspan="5" style="text-align:center;color:#999;padding:2rem">
+          Acesso restrito para administradores.
+        </td>
       </tr>
     `;
     return;
   }
 
-  const stockList = getStockList();
+  const listaEstoque = obterListaEstoque();
 
-  tableBody.innerHTML = "";
+  corpoTabela.innerHTML = "";
 
-  stockList.forEach((product) => {
-    const status = getStockStatus(product.quantity);
-    const inputId = `stock-${createSafeId(product.name)}`;
+  listaEstoque.forEach((produto) => {
+    const status = obterStatusEstoque(produto.quantidade);
+    const idInput = `stock-${criarIdSeguro(produto.nome)}`;
 
-    const row = document.createElement("tr");
+    const linha = document.createElement("tr");
 
-    row.innerHTML = `
-      <td><strong>${product.name}</strong></td>
-      <td>${product.category}</td>
+    linha.innerHTML = `
+      <td><strong>${produto.nome}</strong></td>
+
+      <td>${produto.categoria}</td>
+
       <td>
         <input
           type="number"
           min="0"
-          value="${product.quantity}"
-          id="${inputId}"
+          value="${produto.quantidade}"
+          id="${idInput}"
         />
       </td>
+
       <td>
-        <span class="${status.className}">
-          ${status.text}
+        <span class="${status.classe}">
+          ${status.texto}
         </span>
       </td>
+
       <td>
         <button
           type="button"
           class="save-stock-button"
-          onclick="saveStockFromInput('${product.name}')"
+          onclick="salvarEstoqueDoInput('${produto.nome}')"
         >
           Salvar
         </button>
       </td>
     `;
 
-    tableBody.appendChild(row);
+    corpoTabela.appendChild(linha);
   });
 }
 
-function saveStockFromInput(productName) {
-  if (!isAdmin()) {
+function salvarEstoqueDoInput(nomeProduto) {
+  if (!verificarSeAdmin()) {
     alert("Acesso negado. Apenas administradores podem alterar o estoque.");
     return;
   }
 
-  const inputId = `stock-${createSafeId(productName)}`;
-  const input = document.getElementById(inputId);
+  const idInput = `stock-${criarIdSeguro(nomeProduto)}`;
+  const input = document.getElementById(idInput);
 
   if (!input) return;
 
-  const newQuantity = Number(input.value);
+  const novaQuantidade = Number(input.value);
 
-  if (Number.isNaN(newQuantity) || newQuantity < 0) {
+  if (Number.isNaN(novaQuantidade) || novaQuantidade < 0) {
     alert("Informe uma quantidade válida.");
     return;
   }
 
-  updateProductStock(productName, newQuantity);
+  atualizarEstoqueProduto(nomeProduto, novaQuantidade);
 
-  addAdminLog("ESTOQUE_ATUALIZADO", `Estoque atualizado para ${productName}.`, {
-    produto: productName,
-    quantidade: newQuantity
+  adicionarLogAdmin("ESTOQUE_ATUALIZADO", `Estoque atualizado para ${nomeProduto}.`, {
+    produto: nomeProduto,
+    quantidade: novaQuantidade
   });
 
   alert("Estoque atualizado com sucesso!");
@@ -346,859 +394,1273 @@ function saveStockFromInput(productName) {
    CARRINHO
 ================================ */
 
-let cart = getStorage("pedrinhoCart", []);
+let carrinho = obterStorage("pedrinhoCart", []);
+let pedidoPagamentoPendente = null;
 
-const cartSidebar = document.querySelector("#cart-sidebar");
-const cartOverlay = document.querySelector("#cart-overlay");
-const cartItems = document.querySelector("#cart-items");
-const cartCount = document.querySelector("#cart-count");
-const cartTotal = document.querySelector("#cart-total");
+function converterCarrinhoAntigo(lista) {
+  if (!Array.isArray(lista)) return [];
 
-function saveCart() {
-  setStorage("pedrinhoCart", cart);
+  return lista
+    .map((item) => {
+      return {
+        nome: item.nome || item.name,
+        preco: Number(item.preco ?? item.price ?? 0),
+        imagem: item.imagem || item.image || "",
+        quantidade: Number(item.quantidade ?? item.quantity ?? 1)
+      };
+    })
+    .filter((item) => item.nome);
 }
 
-function getCartTotal() {
-  return cart.reduce((total, item) => {
-    return total + Number(item.price) * Number(item.quantity);
+carrinho = converterCarrinhoAntigo(carrinho);
+
+function salvarCarrinho() {
+  salvarStorage("pedrinhoCart", carrinho);
+}
+
+function obterTotalCarrinho() {
+  return carrinho.reduce((total, item) => {
+    return total + Number(item.preco) * Number(item.quantidade);
   }, 0);
 }
 
-function getCartQuantity() {
-  return cart.reduce((total, item) => {
-    return total + Number(item.quantity);
+function obterQuantidadeCarrinho() {
+  return carrinho.reduce((total, item) => {
+    return total + Number(item.quantidade);
   }, 0);
 }
 
-function getCartProductQuantity(productName) {
-  const product = cart.find((item) => item.name === productName);
-  return product ? Number(product.quantity) : 0;
+function obterQuantidadeProdutoCarrinho(nomeProduto) {
+  const produto = carrinho.find((item) => {
+    return item.nome === nomeProduto;
+  });
+
+  return produto ? Number(produto.quantidade) : 0;
 }
 
-function addToCart(name, price, image) {
-  const stockQuantity = getProductStock(name);
-  const cartQuantity = getCartProductQuantity(name);
+function adicionarAoCarrinho(nome, preco, imagem) {
+  const estoqueDisponivel = obterEstoqueProduto(nome);
+  const quantidadeNoCarrinho = obterQuantidadeProdutoCarrinho(nome);
 
-  if (stockQuantity <= 0) {
+  if (estoqueDisponivel <= 0) {
     alert("Produto esgotado.");
     return;
   }
 
-  if (cartQuantity >= stockQuantity) {
+  if (quantidadeNoCarrinho >= estoqueDisponivel) {
     alert("Você já adicionou a quantidade máxima disponível desse produto.");
     return;
   }
 
-  const existingProduct = cart.find((item) => item.name === name);
+  const produtoExistente = carrinho.find((item) => {
+    return item.nome === nome;
+  });
 
-  if (existingProduct) {
-    existingProduct.quantity += 1;
+  if (produtoExistente) {
+    produtoExistente.quantidade += 1;
   } else {
-    cart.push({
-      name,
-      price: Number(price),
-      image,
-      quantity: 1
+    carrinho.push({
+      nome,
+      preco: Number(preco),
+      imagem,
+      quantidade: 1
     });
   }
 
-  saveCart();
-  renderCart();
-  openCart();
+  salvarCarrinho();
+  renderizarCarrinho();
+  abrirCarrinho();
 }
 
-function increaseQuantity(index) {
-  const item = cart[index];
+function aumentarQuantidade(indice) {
+  const item = carrinho[indice];
 
   if (!item) return;
 
-  const stockQuantity = getProductStock(item.name);
+  const estoqueDisponivel = obterEstoqueProduto(item.nome);
 
-  if (item.quantity >= stockQuantity) {
+  if (item.quantidade >= estoqueDisponivel) {
     alert("Quantidade máxima disponível em estoque.");
     return;
   }
 
-  cart[index].quantity += 1;
+  item.quantidade += 1;
 
-  saveCart();
-  renderCart();
+  salvarCarrinho();
+  renderizarCarrinho();
 }
 
-function decreaseQuantity(index) {
-  if (!cart[index]) return;
+function diminuirQuantidade(indice) {
+  if (!carrinho[indice]) return;
 
-  if (cart[index].quantity > 1) {
-    cart[index].quantity -= 1;
+  if (carrinho[indice].quantidade > 1) {
+    carrinho[indice].quantidade -= 1;
   } else {
-    cart.splice(index, 1);
+    carrinho.splice(indice, 1);
   }
 
-  saveCart();
-  renderCart();
+  salvarCarrinho();
+  renderizarCarrinho();
 }
 
-function removeFromCart(index) {
-  if (!cart[index]) return;
+function removerDoCarrinho(indice) {
+  if (!carrinho[indice]) return;
 
-  cart.splice(index, 1);
+  carrinho.splice(indice, 1);
 
-  saveCart();
-  renderCart();
+  salvarCarrinho();
+  renderizarCarrinho();
 }
 
-function clearCart() {
-  if (!cart.length) return;
+function limparCarrinho() {
+  if (!carrinho.length) return;
 
-  const confirmClear = confirm("Deseja limpar o carrinho?");
+  const confirmar = confirm("Deseja limpar o carrinho?");
 
-  if (!confirmClear) return;
+  if (!confirmar) return;
 
-  cart = [];
-  saveCart();
-  renderCart();
+  carrinho = [];
+
+  salvarCarrinho();
+  renderizarCarrinho();
 }
 
-function renderCart() {
-  if (!cartItems || !cartCount || !cartTotal) return;
+function renderizarCarrinho() {
+  const itensCarrinho = document.querySelector("#cart-items");
+  const contadorCarrinho = document.querySelector("#cart-count");
+  const totalCarrinho = document.querySelector("#cart-total");
 
-  cartItems.innerHTML = "";
-
-  if (!cart.length) {
-    cartItems.innerHTML = `<p class="empty-cart">Seu carrinho está vazio.</p>`;
+  if (contadorCarrinho) {
+    contadorCarrinho.textContent = obterQuantidadeCarrinho();
   }
 
-  cart.forEach((item, index) => {
-    const stockQuantity = getProductStock(item.name);
+  if (totalCarrinho) {
+    totalCarrinho.textContent = formatarDinheiro(obterTotalCarrinho());
+  }
 
-    const article = document.createElement("article");
-    article.className = "cart-item";
+  if (!itensCarrinho) return;
 
-    article.innerHTML = `
-      <img src="${item.image}" alt="${item.name}" />
+  itensCarrinho.innerHTML = "";
+
+  if (!carrinho.length) {
+    itensCarrinho.innerHTML = `<p class="empty-cart">Seu carrinho está vazio.</p>`;
+    return;
+  }
+
+  carrinho.forEach((item, indice) => {
+    const estoqueDisponivel = obterEstoqueProduto(item.nome);
+
+    const artigo = document.createElement("article");
+    artigo.className = "cart-item";
+
+    artigo.innerHTML = `
+      <img src="${item.imagem}" alt="${item.nome}" />
 
       <div class="cart-item-content">
         <div class="cart-item-info">
-          <strong>${item.name}</strong>
-          <span>${formatMoney(item.price)}</span>
+          <strong>${item.nome}</strong>
+          <span>${formatarDinheiro(item.preco)}</span>
           <small class="cart-stock-info">
-            Estoque disponível: ${stockQuantity}
+            Estoque disponível: ${estoqueDisponivel}
           </small>
         </div>
 
         <div class="cart-item-actions">
-          <button type="button" onclick="decreaseQuantity(${index})">−</button>
-          <span>${item.quantity}</span>
-          <button type="button" onclick="increaseQuantity(${index})">+</button>
+          <button type="button" onclick="diminuirQuantidade(${indice})">
+            −
+          </button>
+
+          <span>${item.quantidade}</span>
+
+          <button type="button" onclick="aumentarQuantidade(${indice})">
+            +
+          </button>
         </div>
 
-        <button type="button" class="remove-item" onclick="removeFromCart(${index})">
+        <button type="button" class="remove-item" onclick="removerDoCarrinho(${indice})">
           Remover
         </button>
       </div>
     `;
 
-    cartItems.appendChild(article);
+    itensCarrinho.appendChild(artigo);
   });
-
-  cartCount.textContent = getCartQuantity();
-  cartTotal.textContent = formatMoney(getCartTotal());
 }
 
-function openCart() {
-  if (!cartSidebar || !cartOverlay) return;
+function abrirCarrinho() {
+  const lateral = document.querySelector("#cart-sidebar");
+  const fundo = document.querySelector("#cart-overlay");
 
-  cartSidebar.classList.add("active");
-  cartOverlay.classList.add("active");
+  if (!lateral || !fundo) {
+    alert("Estrutura do carrinho não encontrada nesta página.");
+    return;
+  }
+
+  lateral.classList.add("active");
+  fundo.classList.add("active");
 }
 
-function closeCart() {
-  if (!cartSidebar || !cartOverlay) return;
+function fecharCarrinho() {
+  const lateral = document.querySelector("#cart-sidebar");
+  const fundo = document.querySelector("#cart-overlay");
 
-  cartSidebar.classList.remove("active");
-  cartOverlay.classList.remove("active");
+  if (!lateral || !fundo) return;
+
+  lateral.classList.remove("active");
+  fundo.classList.remove("active");
 }
 
-function finishOrder() {
-  if (!cart.length) {
+/* ===============================
+   PAGAMENTO
+================================ */
+
+function finalizarPedido() {
+  if (!carrinho.length) {
     alert("Seu carrinho está vazio.");
     return;
   }
 
-  const hasUnavailableProduct = cart.some((item) => {
-    const stockQuantity = getProductStock(item.name);
-    return item.quantity > stockQuantity;
+  const produtoIndisponivel = carrinho.some((item) => {
+    return item.quantidade > obterEstoqueProduto(item.nome);
   });
 
-  if (hasUnavailableProduct) {
+  if (produtoIndisponivel) {
     alert("Algum produto do carrinho não possui estoque suficiente.");
     return;
   }
 
-  const loggedUser = getLoggedUser();
+  const usuarioLogado = obterUsuarioLogado();
+  const total = obterTotalCarrinho();
 
-  const itemsText = cart
-    .map((item) => {
-      return `${item.quantity}x ${item.name} - ${formatMoney(item.price * item.quantity)}`;
-    })
-    .join("\n");
-
-  const total = getCartTotal();
-  const totalFormatted = formatMoney(total);
-
-  const customerText = loggedUser
-    ? `Cliente: ${loggedUser.name}\nE-mail: ${loggedUser.email}\nPerfil: ${loggedUser.role === "admin" ? "Administrador" : "Usuário"}\n\n`
-    : "";
-
-  const message =
-    `Olá! Gostaria de finalizar meu pedido na Pedrinho Farmácias:\n\n` +
-    customerText +
-    `${itemsText}\n\n` +
-    `Total: ${totalFormatted}`;
-
-  registerAdminSale({
-    customer: loggedUser
+  const pedido = {
+    cliente: usuarioLogado
       ? {
-          name: loggedUser.name,
-          email: loggedUser.email,
-          role: loggedUser.role || "user"
+          nome: usuarioLogado.nome,
+          email: usuarioLogado.email,
+          perfil: usuarioLogado.perfil || "usuario"
         }
       : {
-          name: "Cliente não identificado",
+          nome: "Cliente não identificado",
           email: "Não informado",
-          role: "guest"
+          perfil: "visitante"
         },
-    items: cart,
-    total,
-    grossTotal: total
-  });
 
-  cart.forEach((item) => {
-    decreaseStock(item.name, item.quantity);
-  });
+    itens: carrinho.map((item) => {
+      return {
+        nome: item.nome,
+        preco: Number(item.preco),
+        imagem: item.imagem,
+        quantidade: Number(item.quantidade),
+        subtotal: Number(item.preco) * Number(item.quantidade)
+      };
+    }),
 
-  cart = [];
-  saveCart();
+    total: total,
+    totalBruto: total,
+    data: new Date().toLocaleString("pt-BR")
+  };
 
-  renderCart();
-  renderProductStockBadges();
-  renderStockTable();
-  renderAdminDashboard();
+  salvarStorage("pedrinhoPedidoPendente", pedido);
 
-  const phone = "555596601385";
-  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-
-  window.open(url, "_blank");
+  window.location.href = "pagamento.html";
 }
 
-/* ===============================
-   BUSCA E FILTROS
-================================ */
-
-const productSearch = document.querySelector("#product-search");
-const productCards = document.querySelectorAll(".produto-card, .product-card");
-const filterButtons = document.querySelectorAll(".filter-btn");
-
-let activeFilter = "all";
-
-function filterProducts() {
-  const searchTerm = productSearch
-    ? normalizeText(productSearch.value)
-    : "";
-
-  productCards.forEach((card) => {
-    const name = normalizeText(card.dataset.name);
-    const category = card.dataset.category;
-
-    const matchesSearch = name.includes(searchTerm);
-    const matchesFilter = activeFilter === "all" || category === activeFilter;
-
-    card.style.display = matchesSearch && matchesFilter ? "block" : "none";
-  });
+function iniciarPagamento() {
+  finalizarPedido();
 }
 
-if (productSearch) {
-  productSearch.addEventListener("input", filterProducts);
-}
+function abrirModalPagamento(pedido) {
+  const modal = document.querySelector("#payment-modal");
+  const caixaQrCode = document.querySelector("#payment-qrcode");
+  const totalElemento = document.querySelector("#payment-total");
 
-filterButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    filterButtons.forEach((btn) => btn.classList.remove("active"));
-
-    button.classList.add("active");
-    activeFilter = button.dataset.filter || "all";
-
-    filterProducts();
-  });
-});
-
-/* ===============================
-   NEWSLETTER
-================================ */
-
-const simpleForms = document.querySelectorAll(
-  "form:not(#login-form):not(#register-form)"
-);
-
-simpleForms.forEach((form) => {
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const name = form.querySelector('input[type="text"]')?.value.trim();
-    const email = form.querySelector('input[type="email"]')?.value.trim();
-
-    if (!name || !email) {
-      alert("Preencha seu nome e e-mail corretamente.");
-      return;
-    }
-
-    alert("Cadastro realizado com sucesso!");
-    form.reset();
-  });
-});
-
-/* ===============================
-   USUÁRIOS E PERMISSÕES
-================================ */
-
-const loginForm = document.querySelector("#login-form");
-const registerForm = document.querySelector("#register-form");
-const userPanel = document.querySelector("#user-panel");
-const userMessage = document.querySelector("#user-message");
-
-function getUsers() {
-  return getStorage("pedrinhoUsers", []);
-}
-
-function saveUsers(users) {
-  setStorage("pedrinhoUsers", users);
-}
-
-function getLoggedUser() {
-  return getStorage("pedrinhoLoggedUser", null);
-}
-
-function setLoggedUser(user) {
-  setStorage("pedrinhoLoggedUser", user);
-}
-
-function initDefaultAdmin() {
-  const users = getUsers();
-
-  const adminExists = users.some((user) => user.email === "admin@pedrinho.com");
-
-  if (!adminExists) {
-    users.push({
-      name: "Administrador",
-      email: "admin@pedrinho.com",
-      password: "admin123",
-      role: "admin"
-    });
-
-    saveUsers(users);
-  }
-}
-
-function isAdmin() {
-  const loggedUser = getLoggedUser();
-  return loggedUser && loggedUser.role === "admin";
-}
-
-function applyUserVisualMode() {
-  const loggedUser = getLoggedUser();
-
-  document.body.classList.remove("admin-mode", "user-mode", "guest-mode");
-
-  if (!loggedUser) {
-    document.body.classList.add("guest-mode");
+  if (!modal || !caixaQrCode || !totalElemento) {
+    alert("Erro: estrutura do pagamento não encontrada no HTML.");
     return;
   }
 
-  if (loggedUser.role === "admin") {
-    document.body.classList.add("admin-mode");
+  caixaQrCode.innerHTML = "";
+  totalElemento.textContent = formatarDinheiro(pedido.total);
+
+  const textoQr = gerarTextoPagamento(pedido);
+
+  if (typeof QRCode !== "undefined") {
+    new QRCode(caixaQrCode, {
+      text: textoQr,
+      width: 200,
+      height: 200
+    });
   } else {
-    document.body.classList.add("user-mode");
+    const imagemQr = document.createElement("img");
+
+    imagemQr.src =
+      "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" +
+      encodeURIComponent(textoQr);
+
+    imagemQr.alt = "QR Code de pagamento";
+
+    caixaQrCode.appendChild(imagemQr);
+  }
+
+  fecharCarrinho();
+
+  modal.classList.add("active");
+}
+
+function fecharModalPagamento() {
+  const modal = document.querySelector("#payment-modal");
+
+  if (!modal) return;
+
+  modal.classList.remove("active");
+}
+
+function gerarTextoPagamento(pedido) {
+  const itensTexto = pedido.itens
+    .map((item) => {
+      return `${item.quantidade}x ${item.nome} - ${formatarDinheiro(item.subtotal)}`;
+    })
+    .join(" | ");
+
+  return (
+    `PEDRINHO FARMÁCIAS\n` +
+    `Cliente: ${pedido.cliente.nome}\n` +
+    `Total: ${formatarDinheiro(pedido.total)}\n` +
+    `Itens: ${itensTexto}`
+  );
+}
+
+function confirmarPagamento() {
+  if (!pedidoPagamentoPendente) {
+    alert("Nenhum pagamento pendente.");
+    return;
+  }
+
+  registrarVendaAdmin(pedidoPagamentoPendente);
+
+  pedidoPagamentoPendente.itens.forEach((item) => {
+    diminuirEstoque(item.nome, item.quantidade);
+  });
+
+  carrinho = [];
+
+  salvarCarrinho();
+
+  renderizarCarrinho();
+  renderizarBadgesEstoque();
+  renderizarTabelaEstoque();
+  renderizarPainelAdmin();
+
+  adicionarLogAdmin(
+    "PAGAMENTO_CONFIRMADO",
+    "Pagamento confirmado via QR Code.",
+    pedidoPagamentoPendente
+  );
+
+  pedidoPagamentoPendente = null;
+
+  fecharModalPagamento();
+
+  alert("Pagamento confirmado com sucesso!");
+}
+
+/* ===============================
+   PAGAMENTO - PÁGINA pagamento.html
+================================ */
+
+const LINK_QR_CODE_PAGAMENTO = "https://youtu.be/kAOZ14Tjg7A?si=F4XzVReQ7rPesPRp&t=56";
+
+function montarPedidoDoCarrinho() {
+  const usuarioLogado = obterUsuarioLogado();
+  const total = obterTotalCarrinho();
+
+  return {
+    cliente: usuarioLogado
+      ? {
+          nome: usuarioLogado.nome,
+          email: usuarioLogado.email,
+          perfil: usuarioLogado.perfil || "usuario"
+        }
+      : {
+          nome: "Cliente não identificado",
+          email: "Não informado",
+          perfil: "visitante"
+        },
+
+    itens: carrinho.map((item) => {
+      return {
+        nome: item.nome,
+        preco: Number(item.preco),
+        imagem: item.imagem,
+        quantidade: Number(item.quantidade),
+        subtotal: Number(item.preco) * Number(item.quantidade)
+      };
+    }),
+
+    total: total,
+    totalBruto: total,
+    data: new Date().toLocaleString("pt-BR")
+  };
+}
+
+function finalizarPedido() {
+  if (!carrinho.length) {
+    alert("Seu carrinho está vazio.");
+    return;
+  }
+
+  const produtoIndisponivel = carrinho.some((item) => {
+    return item.quantidade > obterEstoqueProduto(item.nome);
+  });
+
+  if (produtoIndisponivel) {
+    alert("Algum produto do carrinho não possui estoque suficiente.");
+    return;
+  }
+
+  const pedido = montarPedidoDoCarrinho();
+
+  salvarStorage("pedrinhoPedidoPendente", pedido);
+
+  window.location.href = "pagamento.html";
+}
+
+function iniciarPagamento() {
+  finalizarPedido();
+}
+
+function obterPedidoPendentePagamento() {
+  let pedido = obterStorage("pedrinhoPedidoPendente", null);
+
+  if (pedido && pedido.itens && pedido.itens.length) {
+    return pedido;
+  }
+
+  if (carrinho && carrinho.length) {
+    pedido = montarPedidoDoCarrinho();
+    salvarStorage("pedrinhoPedidoPendente", pedido);
+    return pedido;
+  }
+
+  return null;
+}
+
+function gerarTextoPagamento(pedido) {
+  const itensTexto = pedido.itens
+    .map((item) => {
+      return `${item.quantidade}x ${item.nome} - ${formatarDinheiro(item.subtotal)}`;
+    })
+    .join(" | ");
+
+  return (
+    `PEDRINHO FARMÁCIAS\n` +
+    `Cliente: ${pedido.cliente.nome}\n` +
+    `Total: ${formatarDinheiro(pedido.total)}\n` +
+    `Itens: ${itensTexto}\n` +
+    `Link: ${LINK_QR_CODE_PAGAMENTO}`
+  );
+}
+
+function gerarQrCodeNaTela(elemento, texto) {
+  if (!elemento) return;
+
+  elemento.innerHTML = "";
+
+  if (typeof QRCode !== "undefined") {
+    new QRCode(elemento, {
+      text: texto,
+      width: 220,
+      height: 220
+    });
+
+    return;
+  }
+
+  const imagemQr = document.createElement("img");
+
+  imagemQr.src =
+    "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" +
+    encodeURIComponent(texto);
+
+  imagemQr.alt = "QR Code de pagamento";
+
+  elemento.appendChild(imagemQr);
+}
+
+function renderizarPaginaPagamento() {
+  const listaItens = document.querySelector("#payment-order-items");
+  const totalResumo = document.querySelector("#payment-page-total");
+  const totalQr = document.querySelector("#payment-page-total-qr");
+  const caixaQrCode = document.querySelector("#payment-page-qrcode");
+
+  if (!listaItens || !totalResumo || !totalQr || !caixaQrCode) {
+    return;
+  }
+
+  const pedido = obterPedidoPendentePagamento();
+
+  if (!pedido || !pedido.itens || !pedido.itens.length) {
+    listaItens.innerHTML = `
+      <p class="empty-cart">
+        Nenhum pedido encontrado. Volte para a loja e adicione itens ao carrinho.
+      </p>
+    `;
+
+    totalResumo.textContent = "R$ 0,00";
+    totalQr.textContent = "R$ 0,00";
+
+    gerarQrCodeNaTela(caixaQrCode, LINK_QR_CODE_PAGAMENTO);
+
+    return;
+  }
+
+  listaItens.innerHTML = "";
+
+  pedido.itens.forEach((item) => {
+    const div = document.createElement("div");
+    div.className = "payment-order-item";
+
+    div.innerHTML = `
+      <img src="${item.imagem}" alt="${item.nome}" />
+
+      <div>
+        <strong>${item.nome}</strong>
+        <span>${item.quantidade}x ${formatarDinheiro(item.preco)}</span>
+      </div>
+
+      <div class="payment-order-item-price">
+        ${formatarDinheiro(item.subtotal)}
+      </div>
+    `;
+
+    listaItens.appendChild(div);
+  });
+
+  totalResumo.textContent = formatarDinheiro(pedido.total);
+  totalQr.textContent = formatarDinheiro(pedido.total);
+
+  gerarQrCodeNaTela(caixaQrCode, LINK_QR_CODE_PAGAMENTO);
+}
+
+function confirmarPagamentoPagina() {
+  const pedido = obterPedidoPendentePagamento();
+
+  if (!pedido || !pedido.itens || !pedido.itens.length) {
+    alert("Nenhum pedido pendente para confirmar.");
+    return;
+  }
+
+  registrarVendaAdmin(pedido);
+
+  pedido.itens.forEach((item) => {
+    diminuirEstoque(item.nome, item.quantidade);
+  });
+
+  carrinho = [];
+
+  salvarCarrinho();
+
+  localStorage.removeItem("pedrinhoPedidoPendente");
+
+  adicionarLogAdmin(
+    "PAGAMENTO_CONFIRMADO",
+    "Pagamento confirmado na página de pagamento.",
+    pedido
+  );
+
+  renderizarCarrinho();
+  renderizarBadgesEstoque();
+  renderizarTabelaEstoque();
+  renderizarPainelAdmin();
+
+  alert("Pagamento confirmado com sucesso!");
+
+  window.location.href = "index.html";
+}
+
+function cancelarPagamentoPagina() {
+  const confirmar = confirm("Deseja cancelar este pagamento?");
+
+  if (!confirmar) return;
+
+  localStorage.removeItem("pedrinhoPedidoPendente");
+
+  alert("Pagamento cancelado.");
+
+  window.location.href = "index.html";
+}
+
+/* Modal antigo mantido apenas para compatibilidade */
+
+function abrirModalPagamento(pedido) {
+  salvarStorage("pedrinhoPedidoPendente", pedido);
+  window.location.href = "pagamento.html";
+}
+
+function fecharModalPagamento() {
+  const modal = document.querySelector("#payment-modal");
+
+  if (!modal) return;
+
+  modal.classList.remove("active");
+}
+
+function confirmarPagamento() {
+  confirmarPagamentoPagina();
+};
+
+/* ===============================
+   FILTROS
+================================ */
+
+function configurarFiltros() {
+  const campoBusca = document.querySelector("#product-search");
+  const cardsProdutos = document.querySelectorAll(".produto-card, .product-card");
+  const botoesFiltro = document.querySelectorAll(".filter-btn");
+
+  let filtroAtivo = "all";
+
+  function filtrarProdutos() {
+    const termoBusca = campoBusca ? normalizarTexto(campoBusca.value) : "";
+
+    cardsProdutos.forEach((card) => {
+      const nome = normalizarTexto(card.dataset.name);
+      const categoria = card.dataset.category;
+
+      const combinaBusca = nome.includes(termoBusca);
+      const combinaFiltro = filtroAtivo === "all" || categoria === filtroAtivo;
+
+      card.style.display = combinaBusca && combinaFiltro ? "block" : "none";
+    });
+  }
+
+  if (campoBusca) {
+    campoBusca.addEventListener("input", filtrarProdutos);
+  }
+
+  botoesFiltro.forEach((botao) => {
+    botao.addEventListener("click", () => {
+      botoesFiltro.forEach((btn) => {
+        btn.classList.remove("active");
+      });
+
+      botao.classList.add("active");
+      filtroAtivo = botao.dataset.filter || "all";
+
+      filtrarProdutos();
+    });
+  });
+}
+
+/* ===============================
+   USUÁRIOS E LOGIN
+================================ */
+
+function converterUsuariosAntigos(lista) {
+  if (!Array.isArray(lista)) return [];
+
+  return lista
+    .map((usuario) => {
+      return {
+        nome: usuario.nome || usuario.name,
+        email: usuario.email,
+        senha: usuario.senha || usuario.password,
+        perfil: usuario.perfil || usuario.role || "usuario"
+      };
+    })
+    .filter((usuario) => usuario.email);
+}
+
+function obterUsuarios() {
+  return converterUsuariosAntigos(obterStorage("pedrinhoUsers", []));
+}
+
+function salvarUsuarios(usuarios) {
+  salvarStorage("pedrinhoUsers", usuarios);
+}
+
+function obterUsuarioLogado() {
+  const usuario = obterStorage("pedrinhoLoggedUser", null);
+
+  if (!usuario) return null;
+
+  return {
+    nome: usuario.nome || usuario.name,
+    email: usuario.email,
+    perfil: usuario.perfil || usuario.role || "usuario"
+  };
+}
+
+function definirUsuarioLogado(usuario) {
+  salvarStorage("pedrinhoLoggedUser", usuario);
+}
+
+function iniciarAdministradorPadrao() {
+  const usuarios = obterUsuarios();
+
+  const adminExiste = usuarios.some((usuario) => {
+    return usuario.email === "admin@pedrinho.com";
+  });
+
+  if (!adminExiste) {
+    usuarios.push({
+      nome: "Administrador",
+      email: "admin@pedrinho.com",
+      senha: "admin123",
+      perfil: "admin"
+    });
+
+    salvarUsuarios(usuarios);
   }
 }
 
-function updateNavbarPermissions() {
-  const loggedUser = getLoggedUser();
+function verificarSeAdmin() {
+  const usuarioLogado = obterUsuarioLogado();
 
-  const adminOnlyElements = document.querySelectorAll(".admin-only");
-  const userOnlyElements = document.querySelectorAll(".user-only");
-  const guestOnlyElements = document.querySelectorAll(".guest-only");
-  const userNameElements = document.querySelectorAll(".user-name");
+  return usuarioLogado && usuarioLogado.perfil === "admin";
+}
 
-  adminOnlyElements.forEach((element) => {
-    element.classList.toggle("hidden", !(loggedUser && loggedUser.role === "admin"));
+function atualizarPermissoesNavbar() {
+  const usuarioLogado = obterUsuarioLogado();
+
+  document.querySelectorAll(".admin-only").forEach((elemento) => {
+    elemento.classList.toggle("hidden", !(usuarioLogado && usuarioLogado.perfil === "admin"));
   });
 
-  userOnlyElements.forEach((element) => {
-    element.classList.toggle("hidden", !loggedUser);
+  document.querySelectorAll(".user-only").forEach((elemento) => {
+    elemento.classList.toggle("hidden", !usuarioLogado);
   });
 
-  guestOnlyElements.forEach((element) => {
-    element.classList.toggle("hidden", !!loggedUser);
+  document.querySelectorAll(".guest-only").forEach((elemento) => {
+    elemento.classList.toggle("hidden", !!usuarioLogado);
   });
 
-  userNameElements.forEach((element) => {
-    if (!loggedUser) {
-      element.textContent = "";
+  document.querySelectorAll(".user-name").forEach((elemento) => {
+    if (!usuarioLogado) {
+      elemento.textContent = "";
       return;
     }
 
-    element.textContent =
-      loggedUser.role === "admin"
-        ? `Admin: ${loggedUser.name}`
-        : `Olá, ${loggedUser.name}`;
+    elemento.textContent =
+      usuarioLogado.perfil === "admin"
+        ? `Admin: ${usuarioLogado.nome}`
+        : `Olá, ${usuarioLogado.nome}`;
   });
-
-  applyUserVisualMode();
 }
 
-function protectAdminPages() {
-  const currentPage = window.location.pathname.toLowerCase();
+function protegerPaginasAdmin() {
+  const pagina = window.location.pathname.toLowerCase();
 
-  const isAdminPage =
-    currentPage.includes("estoque.html") ||
-    currentPage.includes("admin.html");
+  const paginaProtegida =
+    pagina.includes("admin.html") ||
+    pagina.includes("estoque.html");
 
-  if (isAdminPage && !isAdmin()) {
+  if (paginaProtegida && !verificarSeAdmin()) {
     alert("Acesso negado. Apenas administradores podem acessar essa área.");
     window.location.href = "login.html";
   }
 }
 
-function updateLoginTabs(activeTab) {
-  const tabButtons = document.querySelectorAll(".tab-button");
+function atualizarAbasLogin(abaAtiva) {
+  const botoes = document.querySelectorAll(".tab-button");
 
-  tabButtons.forEach((button) => {
-    button.classList.remove("active");
+  botoes.forEach((botao) => {
+    botao.classList.remove("active");
   });
 
-  if (activeTab === "login" && tabButtons[0]) {
-    tabButtons[0].classList.add("active");
+  if (abaAtiva === "login" && botoes[0]) {
+    botoes[0].classList.add("active");
   }
 
-  if (activeTab === "register" && tabButtons[1]) {
-    tabButtons[1].classList.add("active");
+  if (abaAtiva === "cadastro" && botoes[1]) {
+    botoes[1].classList.add("active");
   }
 }
 
-function showRegister() {
-  if (!loginForm || !registerForm || !userPanel) return;
+function mostrarCadastro() {
+  const formularioLogin = document.querySelector("#login-form");
+  const formularioCadastro = document.querySelector("#register-form");
+  const painelUsuario = document.querySelector("#user-panel");
 
-  loginForm.classList.add("hidden");
-  registerForm.classList.remove("hidden");
-  userPanel.classList.add("hidden");
+  if (!formularioLogin || !formularioCadastro || !painelUsuario) return;
 
-  updateLoginTabs("register");
+  formularioLogin.classList.add("hidden");
+  formularioCadastro.classList.remove("hidden");
+  painelUsuario.classList.add("hidden");
+
+  atualizarAbasLogin("cadastro");
 }
 
-function showLogin() {
-  if (!loginForm || !registerForm || !userPanel) return;
+function mostrarLogin() {
+  const formularioLogin = document.querySelector("#login-form");
+  const formularioCadastro = document.querySelector("#register-form");
+  const painelUsuario = document.querySelector("#user-panel");
 
-  registerForm.classList.add("hidden");
-  loginForm.classList.remove("hidden");
-  userPanel.classList.add("hidden");
+  if (!formularioLogin || !formularioCadastro || !painelUsuario) return;
 
-  updateLoginTabs("login");
+  formularioCadastro.classList.add("hidden");
+  formularioLogin.classList.remove("hidden");
+  painelUsuario.classList.add("hidden");
+
+  atualizarAbasLogin("login");
 }
 
-function showUserPanel(user) {
-  if (!loginForm || !registerForm || !userPanel || !userMessage) return;
+function mostrarPainelUsuario(usuario) {
+  const formularioLogin = document.querySelector("#login-form");
+  const formularioCadastro = document.querySelector("#register-form");
+  const painelUsuario = document.querySelector("#user-panel");
+  const mensagemUsuario = document.querySelector("#user-message");
 
-  loginForm.classList.add("hidden");
-  registerForm.classList.add("hidden");
-  userPanel.classList.remove("hidden");
+  if (!formularioLogin || !formularioCadastro || !painelUsuario || !mensagemUsuario) return;
 
-  const roleText = user.role === "admin" ? "Administrador" : "Usuário";
+  formularioLogin.classList.add("hidden");
+  formularioCadastro.classList.add("hidden");
+  painelUsuario.classList.remove("hidden");
 
-  userMessage.textContent =
-    `Bem-vindo(a), ${user.name}. Você está logado como ${roleText}. E-mail: ${user.email}.`;
+  mensagemUsuario.textContent =
+    `Bem-vindo(a), ${usuario.nome}. Você está logado como ${
+      usuario.perfil === "admin" ? "Administrador" : "Usuário"
+    }. E-mail: ${usuario.email}.`;
 
-  updateNavbarPermissions();
+  atualizarPermissoesNavbar();
 }
 
-function logoutUser() {
+function sairUsuario() {
   localStorage.removeItem("pedrinhoLoggedUser");
 
   alert("Você saiu da conta.");
 
-  updateNavbarPermissions();
+  atualizarPermissoesNavbar();
 
-  const currentPage = window.location.pathname.toLowerCase();
+  const pagina = window.location.pathname.toLowerCase();
 
-  if (
-    currentPage.includes("estoque.html") ||
-    currentPage.includes("admin.html")
-  ) {
+  if (pagina.includes("admin.html") || pagina.includes("estoque.html")) {
     window.location.href = "login.html";
     return;
   }
 
-  if (loginForm && registerForm && userPanel) {
-    showLogin();
+  mostrarLogin();
+}
+
+function configurarFormulariosLogin() {
+  const formularioLogin = document.querySelector("#login-form");
+  const formularioCadastro = document.querySelector("#register-form");
+
+  if (formularioCadastro) {
+    formularioCadastro.addEventListener("submit", (evento) => {
+      evento.preventDefault();
+
+      const nome = document.querySelector("#register-name")?.value.trim();
+      const email = document.querySelector("#register-email")?.value.trim().toLowerCase();
+      const senha = document.querySelector("#register-password")?.value.trim();
+
+      if (!nome || !email || !senha) {
+        alert("Preencha todos os campos.");
+        return;
+      }
+
+      if (senha.length < 4) {
+        alert("A senha precisa ter pelo menos 4 caracteres.");
+        return;
+      }
+
+      const usuarios = obterUsuarios();
+
+      const usuarioExiste = usuarios.some((usuario) => {
+        return usuario.email === email;
+      });
+
+      if (usuarioExiste) {
+        alert("Este e-mail já está cadastrado.");
+        return;
+      }
+
+      const novoUsuario = {
+        nome,
+        email,
+        senha,
+        perfil: "usuario"
+      };
+
+      usuarios.push(novoUsuario);
+      salvarUsuarios(usuarios);
+
+      definirUsuarioLogado({
+        nome: novoUsuario.nome,
+        email: novoUsuario.email,
+        perfil: novoUsuario.perfil
+      });
+
+      adicionarLogAdmin("USUARIO_CRIADO", `Novo usuário cadastrado: ${novoUsuario.email}`, {
+        nome: novoUsuario.nome,
+        email: novoUsuario.email,
+        perfil: novoUsuario.perfil
+      });
+
+      alert("Conta criada com sucesso!");
+
+      formularioCadastro.reset();
+
+      mostrarPainelUsuario(novoUsuario);
+      atualizarPermissoesNavbar();
+    });
+  }
+
+  if (formularioLogin) {
+    formularioLogin.addEventListener("submit", (evento) => {
+      evento.preventDefault();
+
+      const email = document.querySelector("#login-email")?.value.trim().toLowerCase();
+      const senha = document.querySelector("#login-password")?.value.trim();
+
+      const usuarios = obterUsuarios();
+
+      const usuario = usuarios.find((item) => {
+        return item.email === email && item.senha === senha;
+      });
+
+      if (!usuario) {
+        alert("E-mail ou senha incorretos.");
+        return;
+      }
+
+      const usuarioLogado = {
+        nome: usuario.nome,
+        email: usuario.email,
+        perfil: usuario.perfil || "usuario"
+      };
+
+      definirUsuarioLogado(usuarioLogado);
+
+      adicionarLogAdmin("LOGIN_REALIZADO", `Login realizado: ${usuarioLogado.email}`, usuarioLogado);
+
+      alert("Login realizado com sucesso!");
+
+      formularioLogin.reset();
+
+      mostrarPainelUsuario(usuarioLogado);
+      atualizarPermissoesNavbar();
+
+      if (usuarioLogado.perfil === "admin") {
+        window.location.href = "admin.html";
+      }
+    });
   }
 }
 
-if (registerForm) {
-  registerForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const name = document.querySelector("#register-name")?.value.trim();
-    const email = document.querySelector("#register-email")?.value.trim().toLowerCase();
-    const password = document.querySelector("#register-password")?.value.trim();
-
-    if (!name || !email || !password) {
-      alert("Preencha todos os campos.");
-      return;
-    }
-
-    if (password.length < 4) {
-      alert("A senha precisa ter pelo menos 4 caracteres.");
-      return;
-    }
-
-    const users = getUsers();
-    const userExists = users.some((user) => user.email === email);
-
-    if (userExists) {
-      alert("Este e-mail já está cadastrado.");
-      return;
-    }
-
-    const newUser = {
-      name,
-      email,
-      password,
-      role: "user"
-    };
-
-    users.push(newUser);
-    saveUsers(users);
-
-    setLoggedUser({
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role
-    });
-
-    addAdminLog("USUARIO_CRIADO", `Novo usuário cadastrado: ${newUser.email}`, {
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role
-    });
-
-    alert("Conta criada com sucesso!");
-
-    registerForm.reset();
-
-    showUserPanel(newUser);
-    updateNavbarPermissions();
-  });
-}
-
-if (loginForm) {
-  loginForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const email = document.querySelector("#login-email")?.value.trim().toLowerCase();
-    const password = document.querySelector("#login-password")?.value.trim();
-
-    const users = getUsers();
-
-    const user = users.find((item) => {
-      return item.email === email && item.password === password;
-    });
-
-    if (!user) {
-      alert("E-mail ou senha incorretos.");
-      return;
-    }
-
-    const loggedUser = {
-      name: user.name,
-      email: user.email,
-      role: user.role || "user"
-    };
-
-    setLoggedUser(loggedUser);
-
-    addAdminLog("LOGIN_REALIZADO", `Login realizado: ${loggedUser.email}`, {
-      name: loggedUser.name,
-      email: loggedUser.email,
-      role: loggedUser.role
-    });
-
-    alert("Login realizado com sucesso!");
-
-    loginForm.reset();
-
-    showUserPanel(loggedUser);
-    updateNavbarPermissions();
-
-    if (loggedUser.role === "admin") {
-      window.location.href = "admin.html";
-    }
-  });
-}
-
 /* ===============================
-   PAINEL ADMINISTRATIVO
+   ADMIN
 ================================ */
 
-function getAdminSales() {
-  return getStorage("pedrinhoAdminSales", []);
+function obterVendasAdmin() {
+  const vendas = obterStorage("pedrinhoAdminSales", []);
+
+  if (!Array.isArray(vendas)) {
+    return [];
+  }
+
+  return vendas;
 }
 
-function saveAdminSales(sales) {
-  setStorage("pedrinhoAdminSales", sales);
+function salvarVendasAdmin(vendas) {
+  salvarStorage("pedrinhoAdminSales", vendas);
 }
 
-function getAdminInvoices() {
-  return getStorage("pedrinhoAdminInvoices", []);
+function obterNotasAdmin() {
+  const notas = obterStorage("pedrinhoAdminInvoices", []);
+
+  if (!Array.isArray(notas)) {
+    return [];
+  }
+
+  return notas;
 }
 
-function saveAdminInvoices(invoices) {
-  setStorage("pedrinhoAdminInvoices", invoices);
+function salvarNotasAdmin(notas) {
+  salvarStorage("pedrinhoAdminInvoices", notas);
 }
 
-function getAdminLogs() {
-  return getStorage("pedrinhoAdminLogs", []);
+function obterLogsAdmin() {
+  const logs = obterStorage("pedrinhoAdminLogs", []);
+
+  if (!Array.isArray(logs)) {
+    return [];
+  }
+
+  return logs;
 }
 
-function saveAdminLogs(logs) {
-  setStorage("pedrinhoAdminLogs", logs);
+function salvarLogsAdmin(logs) {
+  salvarStorage("pedrinhoAdminLogs", logs);
 }
 
-function generateInvoiceNumber() {
-  const invoices = getAdminInvoices();
-  const nextNumber = invoices.length + 1;
+function gerarNumeroNota() {
+  const notas = obterNotasAdmin();
+  const proximoNumero = notas.length + 1;
 
-  return String(nextNumber).padStart(4, "0");
+  return String(proximoNumero).padStart(4, "0");
 }
 
-function addAdminLog(type, message, payload = null) {
-  const logs = getAdminLogs();
+function adicionarLogAdmin(tipo, mensagem, dados = null) {
+  const logs = obterLogsAdmin();
 
   logs.unshift({
     id: Date.now(),
-    type,
-    message,
-    payload,
-    date: new Date().toLocaleString("pt-BR")
+    tipo,
+    mensagem,
+    dados,
+    data: new Date().toLocaleString("pt-BR")
   });
 
-  saveAdminLogs(logs);
+  salvarLogsAdmin(logs);
 }
 
-function registerAdminSale(orderData) {
-  const sales = getAdminSales();
-  const invoices = getAdminInvoices();
+function registrarVendaAdmin(dadosPedido) {
+  if (!dadosPedido || !dadosPedido.itens || !dadosPedido.itens.length) {
+    console.error("Pedido inválido para registrar venda:", dadosPedido);
+    return;
+  }
 
-  const invoiceNumber = generateInvoiceNumber();
+  const vendas = obterVendasAdmin();
+  const notas = obterNotasAdmin();
+  const numeroNota = gerarNumeroNota();
 
-  const cleanItems = orderData.items.map((item) => {
+  const itensLimpos = dadosPedido.itens.map((item) => {
     return {
-      name: item.name,
-      price: Number(item.price),
-      quantity: Number(item.quantity),
-      subtotal: Number(item.price) * Number(item.quantity)
+      nome: item.nome,
+      preco: Number(item.preco || 0),
+      quantidade: Number(item.quantidade || 0),
+      subtotal: Number(item.subtotal || Number(item.preco || 0) * Number(item.quantidade || 0))
     };
   });
 
-  const sale = {
+  const total = Number(
+    dadosPedido.total ||
+    itensLimpos.reduce((soma, item) => soma + item.subtotal, 0)
+  );
+
+  const cliente = dadosPedido.cliente || {
+    nome: "Cliente não identificado",
+    email: "Não informado",
+    perfil: "visitante"
+  };
+
+  const dataVenda = new Date().toLocaleString("pt-BR");
+
+  const venda = {
     id: Date.now(),
-    invoiceNumber,
-    customer: orderData.customer,
-    items: cleanItems,
-    total: Number(orderData.total),
-    grossTotal: Number(orderData.grossTotal),
-    date: new Date().toLocaleString("pt-BR")
+    numeroNota: numeroNota,
+    cliente: cliente,
+    itens: itensLimpos,
+    total: total,
+    totalBruto: Number(dadosPedido.totalBruto || total),
+    data: dataVenda
   };
 
-  const invoice = {
-    number: invoiceNumber,
-    customer: orderData.customer,
-    items: cleanItems,
-    total: Number(orderData.total),
-    grossTotal: Number(orderData.grossTotal),
-    date: sale.date
+  const nota = {
+    numero: numeroNota,
+    cliente: cliente,
+    itens: itensLimpos,
+    total: total,
+    totalBruto: Number(dadosPedido.totalBruto || total),
+    data: dataVenda
   };
 
-  sales.push(sale);
-  invoices.push(invoice);
+  vendas.push(venda);
+  notas.push(nota);
 
-  saveAdminSales(sales);
-  saveAdminInvoices(invoices);
+  salvarVendasAdmin(vendas);
+  salvarNotasAdmin(notas);
 
-  addAdminLog("VENDA_FINALIZADA", `Venda finalizada com NF ${invoiceNumber}`, sale);
+  adicionarLogAdmin("VENDA_FINALIZADA", `Venda finalizada com NF ${numeroNota}.`, venda);
+
+  console.log("Venda registrada no admin:", venda);
 }
 
-function getProductSalesRanking() {
-  const sales = getAdminSales();
+function obterRankingProdutos() {
+  const vendas = obterVendasAdmin();
   const ranking = {};
 
-  sales.forEach((sale) => {
-    sale.items.forEach((item) => {
-      if (!ranking[item.name]) {
-        ranking[item.name] = {
-          name: item.name,
-          quantity: 0,
+  vendas.forEach((venda) => {
+    if (!venda.itens || !Array.isArray(venda.itens)) return;
+
+    venda.itens.forEach((item) => {
+      if (!ranking[item.nome]) {
+        ranking[item.nome] = {
+          nome: item.nome,
+          quantidade: 0,
           total: 0
         };
       }
 
-      ranking[item.name].quantity += Number(item.quantity);
-      ranking[item.name].total += Number(item.subtotal);
+      ranking[item.nome].quantidade += Number(item.quantidade || 0);
+      ranking[item.nome].total += Number(item.subtotal || 0);
     });
   });
 
-  return Object.values(ranking).sort((a, b) => b.quantity - a.quantity);
+  return Object.values(ranking).sort((a, b) => {
+    return b.quantidade - a.quantidade;
+  });
 }
 
-function renderAdminDashboard() {
-  const totalSalesElement = document.querySelector("#admin-total-sales");
-  const grossSalesElement = document.querySelector("#admin-gross-sales");
-  const topProductElement = document.querySelector("#admin-top-product");
-  const topProductQtyElement = document.querySelector("#admin-top-product-qty");
-  const invoiceCountElement = document.querySelector("#admin-invoice-count");
-  const chartElement = document.querySelector("#admin-products-chart");
-  const invoicesTable = document.querySelector("#admin-invoices-table");
-  const rawLogsElement = document.querySelector("#admin-raw-logs");
+function renderizarPainelAdmin() {
+  const totalVendasElemento = document.querySelector("#admin-total-sales");
+  const totalBrutoElemento = document.querySelector("#admin-gross-sales");
+  const produtoMaisVendidoElemento = document.querySelector("#admin-top-product");
+  const quantidadeProdutoMaisVendidoElemento = document.querySelector("#admin-top-product-qty");
+  const quantidadeNotasElemento = document.querySelector("#admin-invoice-count");
+  const graficoElemento = document.querySelector("#admin-products-chart");
+  const tabelaNotas = document.querySelector("#admin-invoices-table");
+  const logsElemento = document.querySelector("#admin-raw-logs");
 
-  const hasAdminElements =
-    totalSalesElement ||
-    grossSalesElement ||
-    topProductElement ||
-    topProductQtyElement ||
-    invoiceCountElement ||
-    chartElement ||
-    invoicesTable ||
-    rawLogsElement;
+  const existePainel =
+    totalVendasElemento ||
+    totalBrutoElemento ||
+    produtoMaisVendidoElemento ||
+    quantidadeProdutoMaisVendidoElemento ||
+    quantidadeNotasElemento ||
+    graficoElemento ||
+    tabelaNotas ||
+    logsElemento;
 
-  if (!hasAdminElements) return;
+  if (!existePainel) return;
 
-  if (!isAdmin()) return;
+  if (!verificarSeAdmin()) {
+    if (graficoElemento) {
+      graficoElemento.innerHTML = `
+        <p class="admin-empty">
+          Faça login como administrador para visualizar o painel.
+        </p>
+      `;
+    }
 
-  const sales = getAdminSales();
-  const invoices = getAdminInvoices();
-  const logs = getAdminLogs();
-  const ranking = getProductSalesRanking();
+    return;
+  }
 
-  const totalSales = sales.reduce((total, sale) => {
-    return total + Number(sale.total || 0);
+  const vendas = obterVendasAdmin();
+  const notas = obterNotasAdmin();
+  const logs = obterLogsAdmin();
+  const ranking = obterRankingProdutos();
+
+  const totalVendas = vendas.reduce((total, venda) => {
+    return total + Number(venda.total || 0);
   }, 0);
 
-  const grossSales = sales.reduce((total, sale) => {
-    return total + Number(sale.grossTotal || 0);
+  const totalBruto = vendas.reduce((total, venda) => {
+    return total + Number(venda.totalBruto || venda.total || 0);
   }, 0);
 
-  if (totalSalesElement) {
-    totalSalesElement.textContent = formatMoney(totalSales);
+  if (totalVendasElemento) {
+    totalVendasElemento.textContent = formatarDinheiro(totalVendas);
   }
 
-  if (grossSalesElement) {
-    grossSalesElement.textContent = formatMoney(grossSales);
+  if (totalBrutoElemento) {
+    totalBrutoElemento.textContent = formatarDinheiro(totalBruto);
   }
 
-  if (topProductElement) {
-    topProductElement.textContent = ranking[0] ? ranking[0].name : "Nenhum";
+  if (produtoMaisVendidoElemento) {
+    produtoMaisVendidoElemento.textContent = ranking.length ? ranking[0].nome : "Nenhum";
   }
 
-  if (topProductQtyElement) {
-    topProductQtyElement.textContent = ranking[0]
-      ? `${ranking[0].quantity} unidades vendidas.`
+  if (quantidadeProdutoMaisVendidoElemento) {
+    quantidadeProdutoMaisVendidoElemento.textContent = ranking.length
+      ? `${ranking[0].quantidade} unidades vendidas.`
       : "0 unidades vendidas.";
   }
 
-  if (invoiceCountElement) {
-    invoiceCountElement.textContent = invoices.length;
+  if (quantidadeNotasElemento) {
+    quantidadeNotasElemento.textContent = notas.length;
   }
 
-  if (chartElement) {
-    chartElement.innerHTML = "";
+  if (graficoElemento) {
+    graficoElemento.innerHTML = "";
 
     if (!ranking.length) {
-      chartElement.innerHTML = `<p class="admin-empty">Nenhuma venda registrada ainda.</p>`;
+      graficoElemento.innerHTML = `
+        <p class="admin-empty">
+          Nenhuma venda registrada ainda.
+        </p>
+      `;
     } else {
-      const maxQuantity = ranking[0].quantity;
+      const maiorQuantidade = ranking[0].quantidade || 1;
 
-      ranking.forEach((product, index) => {
-        const percentage = maxQuantity > 0
-          ? Math.round((product.quantity / maxQuantity) * 100)
-          : 0;
+      ranking.forEach((produto, indice) => {
+        const porcentagem = Math.max(
+          8,
+          Math.round((produto.quantidade / maiorQuantidade) * 100)
+        );
 
-        const row = document.createElement("div");
-        row.className = "chart-row";
+        const linha = document.createElement("div");
+        linha.className = "chart-row";
 
-        row.innerHTML = `
+        linha.innerHTML = `
           <div class="chart-label">
-            ${index + 1}. ${product.name}
+            ${indice + 1}. ${produto.nome}
           </div>
 
           <div class="chart-bar-wrap">
-            <div class="chart-bar" style="width: ${percentage}%"></div>
+            <div class="chart-bar" style="width: ${porcentagem}%"></div>
           </div>
 
           <div class="chart-value">
-            ${product.quantity}
+            ${produto.quantidade}
           </div>
         `;
 
-        chartElement.appendChild(row);
+        graficoElemento.appendChild(linha);
       });
     }
   }
 
-  if (invoicesTable) {
-    invoicesTable.innerHTML = "";
+  if (tabelaNotas) {
+    tabelaNotas.innerHTML = "";
 
-    if (!invoices.length) {
-      invoicesTable.innerHTML = `
+    if (!notas.length) {
+      tabelaNotas.innerHTML = `
         <tr>
-          <td colspan="5">Nenhuma nota fiscal emitida.</td>
+          <td colspan="5" style="text-align:center;color:#999;padding:2rem">
+            Nenhuma nota fiscal emitida.
+          </td>
         </tr>
       `;
     } else {
-      invoices
+      notas
         .slice()
         .reverse()
-        .forEach((invoice) => {
-          const row = document.createElement("tr");
+        .forEach((nota) => {
+          const linha = document.createElement("tr");
 
-          row.innerHTML = `
-            <td><strong>${invoice.number}</strong></td>
-            <td>${invoice.customer.name}</td>
-            <td>${invoice.date}</td>
-            <td>${formatMoney(invoice.total)}</td>
-            <td>${invoice.items.length} item(ns)</td>
+          linha.innerHTML = `
+            <td><strong>${nota.numero}</strong></td>
+            <td>${nota.cliente?.nome || "Cliente não identificado"}</td>
+            <td>${nota.data}</td>
+            <td>${formatarDinheiro(nota.total)}</td>
+            <td>${nota.itens ? nota.itens.length : 0} item(ns)</td>
           `;
 
-          invoicesTable.appendChild(row);
+          tabelaNotas.appendChild(linha);
         });
     }
   }
 
-  if (rawLogsElement) {
-    rawLogsElement.textContent = logs.length
+  if (logsElemento) {
+    logsElemento.textContent = logs.length
       ? JSON.stringify(logs, null, 2)
       : "Nenhum log registrado.";
   }
 }
 
-function copyAdminLogs() {
-  const logs = getAdminLogs();
+function copiarLogsAdmin() {
+  const logs = obterLogsAdmin();
 
   if (!logs.length) {
     alert("Não existem logs para copiar.");
     return;
   }
 
-  const text = JSON.stringify(logs, null, 2);
+  const texto = JSON.stringify(logs, null, 2);
 
-  navigator.clipboard.writeText(text)
+  navigator.clipboard.writeText(texto)
     .then(() => {
       alert("Logs copiados com sucesso!");
     })
@@ -1207,17 +1669,17 @@ function copyAdminLogs() {
     });
 }
 
-function resetAdminData() {
-  if (!isAdmin()) {
+function limparDadosAdmin() {
+  if (!verificarSeAdmin()) {
     alert("Apenas administradores podem limpar os dados.");
     return;
   }
 
-  const confirmReset = confirm(
+  const confirmar = confirm(
     "Deseja apagar vendas, notas fiscais e logs? Essa ação não pode ser desfeita."
   );
 
-  if (!confirmReset) return;
+  if (!confirmar) return;
 
   localStorage.removeItem("pedrinhoAdminSales");
   localStorage.removeItem("pedrinhoAdminInvoices");
@@ -1225,7 +1687,7 @@ function resetAdminData() {
 
   alert("Dados administrativos apagados com sucesso.");
 
-  renderAdminDashboard();
+  renderizarPainelAdmin();
 }
 
 /* ===============================
@@ -1233,26 +1695,89 @@ function resetAdminData() {
 ================================ */
 
 document.addEventListener("DOMContentLoaded", () => {
-  initDefaultAdmin();
-  getStockList();
+  iniciarAdministradorPadrao();
+  obterListaEstoque();
 
-  const loggedUser = getLoggedUser();
+  configurarCarrossel();
+  configurarFiltros();
+  configurarFormulariosLogin();
 
-  if (loggedUser && userPanel) {
-    showUserPanel(loggedUser);
+  const usuarioLogado = obterUsuarioLogado();
+
+  if (usuarioLogado && document.querySelector("#user-panel")) {
+    mostrarPainelUsuario(usuarioLogado);
   }
 
-  updateNavbarPermissions();
-  protectAdminPages();
+  atualizarPermissoesNavbar();
+  protegerPaginasAdmin();
 
-  document.querySelectorAll(".botao-comprar, .buy-button").forEach((button) => {
-    if (!button.dataset.originalText) {
-      button.dataset.originalText = button.textContent.trim();
-    }
-  });
-
-  renderCart();
-  renderProductStockBadges();
-  renderStockTable();
-  renderAdminDashboard();
+  renderizarCarrinho();
+  renderizarBadgesEstoque();
+  renderizarTabelaEstoque();
+  renderizarPainelAdmin();
+  renderizarPaginaPagamento();
 });
+
+/* ===============================
+   EXPOR FUNÇÕES PARA O HTML
+================================ */
+
+window.abrirCarrinho = abrirCarrinho;
+window.fecharCarrinho = fecharCarrinho;
+window.adicionarAoCarrinho = adicionarAoCarrinho;
+window.aumentarQuantidade = aumentarQuantidade;
+window.diminuirQuantidade = diminuirQuantidade;
+window.removerDoCarrinho = removerDoCarrinho;
+window.limparCarrinho = limparCarrinho;
+
+window.finalizarPedido = finalizarPedido;
+window.iniciarPagamento = iniciarPagamento;
+window.abrirModalPagamento = abrirModalPagamento;
+window.fecharModalPagamento = fecharModalPagamento;
+window.confirmarPagamento = confirmarPagamento;
+window.confirmarPagamentoPagina = confirmarPagamentoPagina;
+window.cancelarPagamentoPagina = cancelarPagamentoPagina;
+
+window.mostrarLogin = mostrarLogin;
+window.mostrarCadastro = mostrarCadastro;
+window.sairUsuario = sairUsuario;
+
+window.restaurarEstoquePadrao = restaurarEstoquePadrao;
+window.salvarEstoqueDoInput = salvarEstoqueDoInput;
+
+window.limparDadosAdmin = limparDadosAdmin;
+window.copiarLogsAdmin = copiarLogsAdmin;
+
+/* Compatibilidade com nomes antigos em inglês */
+
+window.openCart = abrirCarrinho;
+window.closeCart = fecharCarrinho;
+window.addToCart = adicionarAoCarrinho;
+window.increaseQuantity = aumentarQuantidade;
+window.decreaseQuantity = diminuirQuantidade;
+window.removeFromCart = removerDoCarrinho;
+window.clearCart = limparCarrinho;
+
+window.finishOrder = finalizarPedido;
+window.startPayment = iniciarPagamento;
+window.openPaymentModal = abrirModalPagamento;
+window.closePaymentModal = fecharModalPagamento;
+window.confirmPayment = confirmarPagamento;
+
+window.showLogin = mostrarLogin;
+window.showRegister = mostrarCadastro;
+window.logoutUser = sairUsuario;
+
+window.resetStockSystem = restaurarEstoquePadrao;
+window.saveStockFromInput = salvarEstoqueDoInput;
+
+window.resetAdminData = limparDadosAdmin;
+window.copyAdminLogs = copiarLogsAdmin;
+window.finalizarPedido = finalizarPedido;
+window.iniciarPagamento = iniciarPagamento;
+window.renderizarPaginaPagamento = renderizarPaginaPagamento;
+window.confirmarPagamentoPagina = confirmarPagamentoPagina;
+window.cancelarPagamentoPagina = cancelarPagamentoPagina;
+
+window.finishOrder = finalizarPedido;
+window.startPayment = iniciarPagamento;

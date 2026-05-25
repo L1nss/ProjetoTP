@@ -3,171 +3,173 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pedrinho Farmácias</title>
-
+  <title>Pedrinho Farmácias — Saúde, cuidado e economia</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-  <header class="topo">
-    <div class="logo">
-      <strong>Pedrinho Farmácias</strong>
+<header class="topo">
+  <div class="logo">
+    <a href="index.html"><strong>Pedrinho Farmácias</strong></a>
+  </div>
+
+  <nav class="acoes-topo">
+    <span class="user-name user-only hidden"></span>
+
+    <button class="botao-carrinho" type="button" onclick="abrirCarrinho()">
+      🛒 Carrinho <span id="cart-count">0</span>
+    </button>
+
+    <a href="admin.html" class="botao-voltar admin-only hidden">Painel Admin</a>
+
+    <button class="botao-sair user-only hidden" type="button" onclick="sairUsuario()">Sair</button>
+
+    <a href="login.html" class="login-imagem guest-only">
+      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80" alt="Entrar" />
+    </a>
+  </nav>
+</header>
+
+<!-- CARRINHO LATERAL -->
+<aside class="cart-sidebar" id="cart-sidebar">
+  <div class="cart-header">
+    <div>
+      <h2>Seu carrinho</h2>
+      <p>Confira seus itens antes de finalizar.</p>
     </div>
-
-    <div class="acoes-topo">
-      <button class="botao-carrinho" type="button">
-        🛒 Carrinho
-        <span>0</span>
-      </button>
-      
-
-      <a href="login.html" class="login-imagem">
-        <img
-          src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80"
-          alt="Login"
-        />
-      </a>
+    <button class="cart-close" type="button" onclick="fecharCarrinho()">×</button>
+  </div>
+  <div class="cart-items" id="cart-items">
+    <p class="empty-cart">Seu carrinho está vazio.</p>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>Total</span>
+      <strong id="cart-total">R$ 0,00</strong>
     </div>
-  </header>
+<button type="button" class="checkout-button" onclick="finalizarPedido()">
+  Finalizar pagamento
+</button>    <button type="button" class="clear-cart-button" onclick="limparCarrinho()">Limpar carrinho</button>
+  </div>
+</aside>
+<div class="cart-overlay" id="cart-overlay" onclick="fecharCarrinho()"></div>
 
-  <main class="container">
+<!-- MODAL PAGAMENTO -->
+<div class="payment-modal" id="payment-modal">
+  <div class="payment-box">
+    <button class="payment-close" type="button" onclick="fecharModalPagamento()">×</button>
+    <h2>Pagamento do pedido</h2>
+    <p>Escaneie o QR Code abaixo para finalizar sua compra.</p>
+    <div id="payment-qrcode" class="payment-qrcode"></div>
+    <div class="payment-info">
+      <strong id="payment-total">R$ 0,00</strong>
+      <span>Pagamento via QR Code</span>
+    </div>
+    <button type="button" class="payment-confirm" onclick="confirmarPagamento()">Confirmar pagamento</button>
+  </div>
+</div>
 
-    <section class="carrossel">
+<main class="container">
 
-      <article class="slide slide-1">
-        <div class="conteudo-slide">
-          <span>Entrega rápida • Compra segura</span>
-          <h1>Cuidado de farmácia com preço de e-commerce.</h1>
-          <p>
-            Medicamentos, vitaminas, perfumaria e serviços farmacêuticos
-            em uma experiência moderna, segura e prática.
-          </p>
+  <!-- CARROSSEL -->
+  <section class="carrossel">
 
-          <div class="botoes-slide">
-            <a href="#categorias" class="btn-principal">Ver categorias</a>
-            <a href="login.html" class="btn-secundario">Entrar</a>
-          </div>
+    <article class="slide slide-1 active">
+      <div class="conteudo-slide">
+        <span>Entrega rápida • Compra segura</span>
+        <h1>Cuidado de farmácia com preço de e-commerce.</h1>
+        <p>Medicamentos, vitaminas, perfumaria e serviços farmacêuticos em uma experiência moderna, segura e prática.</p>
+        <div class="botoes-slide">
+          <a href="#categorias" class="btn-principal">Ver categorias</a>
+          <a href="login.html" class="btn-secundario">Entrar na conta</a>
         </div>
-
-        <div class="imagem-slide">
-          <img
-            src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=1200&q=80"
-            alt="Farmácia moderna"
-          />
-        </div>
-      </article>
-
-      <article class="slide slide-2">
-        <div class="conteudo-slide">
-          <span>Serviços de saúde</span>
-          <h1>Mais que vender produtos: a gente cuida de você.</h1>
-          <p>
-            Aferição de pressão, testes rápidos, orientação farmacêutica
-            e atendimento humanizado.
-          </p>
-
-          <div class="botoes-slide">
-            <a href="servicos.html" class="btn-principal">Conhecer serviços</a>
-            <a href="#categorias" class="btn-secundario">Ver opções</a>
-          </div>
-        </div>
-
-        <div class="imagem-slide">
-          <img
-            src="https://images.unsplash.com/photo-1631549916768-4119b2e5f926?auto=format&fit=crop&w=1200&q=80"
-            alt="Farmacêutica atendendo cliente"
-          />
-        </div>
-      </article>
-
-      <article class="slide slide-3">
-        <div class="conteudo-slide">
-          <span>Beleza • Higiene • Bem-estar</span>
-          <h1>Perfumaria completa para sua rotina de cuidado.</h1>
-          <p>
-            Dermocosméticos, skincare, higiene, cabelo, corpo e produtos
-            de beleza com preços especiais.
-          </p>
-
-          <div class="botoes-slide">
-            <a href="perfumaria.html" class="btn-principal">Comprar perfumaria</a>
-            <a href="#categorias" class="btn-secundario">Ver categorias</a>
-          </div>
-        </div>
-
-        <div class="imagem-slide">
-          <img
-            src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1200&q=80"
-            alt="Produtos de beleza"
-          />
-        </div>
-      </article>
-
-      <div class="bolinhas">
-        <span></span>
-        <span></span>
-        <span></span>
       </div>
+      <div class="imagem-slide">
+        <img src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=1200&q=80" alt="Farmácia moderna" />
+      </div>
+    </article>
 
-    </section>
-
-    <section class="titulo-secao" id="categorias">
-      <h2>Compre por categoria</h2>
-      <p>Escolha uma das opções abaixo para continuar.</p>
-    </section>
-
-    <section class="cards-categorias">
-
-      <a href="medicamentos.html" class="card-categoria">
-        <img
-          src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=900&q=80"
-          alt="Medicamentos"
-        />
-
-        <div>
-          <h3>Medicamentos</h3>
-          <p>Genéricos, vitaminas e itens essenciais.</p>
+    <article class="slide slide-2">
+      <div class="conteudo-slide">
+        <span>Serviços de saúde</span>
+        <h1>Mais que vender produtos: a gente cuida de você.</h1>
+        <p>Aferição de pressão, testes rápidos, orientação farmacêutica e atendimento humanizado.</p>
+        <div class="botoes-slide">
+          <a href="servicos.html" class="btn-principal">Conhecer serviços</a>
+          <a href="#categorias" class="btn-secundario">Ver categorias</a>
         </div>
-      </a>
+      </div>
+      <div class="imagem-slide">
+        <img src="https://images.unsplash.com/photo-1631549916768-4119b2e5f926?auto=format&fit=crop&w=1200&q=80" alt="Atendimento farmacêutico" />
+      </div>
+    </article>
 
-      <a href="servicos.html" class="card-categoria">
-        <img
-          src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80"
-          alt="Serviços farmacêuticos"
-        />
-
-        <div>
-          <h3>Serviços</h3>
-          <p>Testes rápidos, pressão e orientação farmacêutica.</p>
+    <article class="slide slide-3">
+      <div class="conteudo-slide">
+        <span>Beleza • Higiene • Bem-estar</span>
+        <h1>Perfumaria completa para sua rotina de cuidado.</h1>
+        <p>Dermocosméticos, skincare, higiene, cabelo, corpo e beleza com preços especiais.</p>
+        <div class="botoes-slide">
+          <a href="perfumaria.html" class="btn-principal">Ver perfumaria</a>
+          <a href="#categorias" class="btn-secundario">Ver categorias</a>
         </div>
-      </a>
+      </div>
+      <div class="imagem-slide">
+        <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1200&q=80" alt="Produtos de beleza" />
+      </div>
+    </article>
 
-      <a href="perfumaria.html" class="card-categoria">
-        <img
-          src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=900&q=80"
-          alt="Perfumaria"
-        />
+    <div class="bolinhas">
+      <span class="active"></span>
+      <span></span>
+      <span></span>
+    </div>
+  </section>
 
-        <div>
-          <h3>Perfumaria</h3>
-          <p>Beleza, higiene, skincare e cuidados pessoais.</p>
-        </div>
-      </a>
+  <!-- CATEGORIAS -->
+  <section class="titulo-secao" id="categorias">
+    <h2>Compre por categoria</h2>
+    <p>Escolha uma das opções abaixo para continuar.</p>
+  </section>
 
-    </section>
+  <section class="cards-categorias">
+    <a href="medicamentos.html" class="card-categoria">
+      <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=900&q=80" alt="Medicamentos" />
+      <div>
+        <h3>Medicamentos</h3>
+        <p>Genéricos, vitaminas e itens essenciais para sua saúde.</p>
+      </div>
+    </a>
 
-    <section class="aviso">
-      <strong>Atenção:</strong>
-      medicamentos devem ser utilizados com orientação profissional.
-      Alguns produtos podem exigir receita médica.
-    </section>
+    <a href="servicos.html" class="card-categoria">
+      <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80" alt="Serviços farmacêuticos" />
+      <div>
+        <h3>Serviços</h3>
+        <p>Testes rápidos, pressão e orientação farmacêutica.</p>
+      </div>
+    </a>
 
-  </main>
+    <a href="perfumaria.html" class="card-categoria">
+      <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=900&q=80" alt="Perfumaria" />
+      <div>
+        <h3>Perfumaria</h3>
+        <p>Beleza, higiene, skincare e cuidados pessoais.</p>
+      </div>
+    </a>
+  </section>
 
-  <footer class="rodape">
-    <p>© 2026 Pedrinho Farmácias</p>
-  </footer>
+  <section class="aviso">
+    <strong>Atenção:</strong> medicamentos devem ser utilizados com orientação profissional. Consulte nosso farmacêutico.
+  </section>
 
+</main>
+
+<footer class="rodape">
+  <p>© 2026 Pedrinho Farmácias — Saúde, cuidado e economia.</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

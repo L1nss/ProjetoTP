@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Pagamento | Pedrinho Farmácias</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <header class="topo">
+    <div class="logo">
+      <a href="index.html">
+        <strong>Pedrinho Farmácias</strong>
+      </a>
+    </div>
+
+    <div class="acoes-topo">
+      <a href="index.html" class="botao-voltar">
+        Voltar para loja
+      </a>
+
+      <a href="login.html" class="login-imagem">
+        <img
+          src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80"
+          alt="Login"
+        />
+      </a>
+    </div>
+  </header>
+
+  <main class="container pagamento-page">
+
+    <section class="pagamento-hero">
+      <div>
+        <span>Pagamento seguro</span>
+
+        <h1>Finalize seu pedido</h1>
+
+        <p>
+          Confira os dados da compra, escaneie o QR Code e confirme o pagamento
+          para registrar a venda no sistema.
+        </p>
+      </div>
+
+      <div class="pagamento-status-card">
+        <strong>QR Code</strong>
+        <p>Pagamento simulado para o projeto Pedrinho Farmácias.</p>
+      </div>
+    </section>
+
+    <section class="pagamento-grid">
+
+      <section class="pagamento-card">
+        <div class="pagamento-card-title">
+          <h2>Resumo do pedido</h2>
+          <p>Itens adicionados ao carrinho.</p>
+        </div>
+
+        <div id="payment-order-items" class="payment-order-items">
+          <p class="empty-cart">Nenhum pedido encontrado.</p>
+        </div>
+
+        <div class="payment-order-total">
+          <span>Total do pedido</span>
+          <strong id="payment-page-total">R$ 0,00</strong>
+        </div>
+
+        <div class="payment-actions">
+          <a href="index.html" class="botao-voltar">
+            Continuar comprando
+          </a>
+
+          <button type="button" class="clear-cart-button" onclick="cancelarPagamentoPagina()">
+            Cancelar pagamento
+          </button>
+        </div>
+      </section>
+
+      <section class="pagamento-card pagamento-qrcode-card">
+        <div class="pagamento-card-title">
+          <h2>QR Code de pagamento</h2>
+          <p>Escaneie com seu aplicativo bancário.</p>
+        </div>
+
+        <div id="payment-page-qrcode" class="payment-qrcode"></div>
+
+        <div class="payment-info">
+          <strong id="payment-page-total-qr">R$ 0,00</strong>
+          <span>Pagamento via QR Code</span>
+        </div>
+
+        <button type="button" class="payment-confirm" onclick="confirmarPagamentoPagina()">
+          Confirmar pagamento
+        </button>
+
+        <p class="payment-note">
+          Este QR Code é demonstrativo. A confirmação registra a venda,
+          baixa o estoque e gera os dados no painel admin.
+        </p>
+      </section>
+
+    </section>
+
+  </main>
+
+  <footer class="rodape">
+    <p>© 2026 Pedrinho Farmácias</p>
+  </footer>
+
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html> 

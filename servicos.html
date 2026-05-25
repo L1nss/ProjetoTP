@@ -2,293 +2,208 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Serviços | Pedrinho Farmácias</title>
-
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-  <nav class="container-fluid">
-    <div class="nav-logo-full">
-      <a href="index.html" class="brand-logo-wide" aria-label="Pedrinho Farmácias">
-      <nav class="container-fluid">
-    <ul>
-      <li>
-        <strong>Pedrinho Farmácias</strong>
-      </li>
-    </ul>
-    </div>
-
-    <ul class="nav-links">
-      <li><a href="index.html">Início</a></li>
-      <li><a href="medicamentos.html">Medicamentos</a></li>
-      <li><a href="servicos.html">Serviços</a></li>
-      <li><a href="perfumaria.html">Perfumaria</a></li>
-      <li>
-        <button class="cart-nav-button" type="button" onclick="openCart()">
-          🛒 Carrinho <span id="cart-count">0</span>
-        </button>
-      </li>
-    </ul>
+<header class="topo">
+  <div class="logo">
+    <a href="index.html"><strong>Pedrinho Farmácias</strong></a>
+  </div>
+  <nav class="acoes-topo">
+    <span class="user-name user-only hidden"></span>
+    <button class="botao-carrinho" type="button" onclick="abrirCarrinho()">
+      🛒 Carrinho <span id="cart-count">0</span>
+    </button>
+    <a href="admin.html" class="botao-voltar admin-only hidden">Painel Admin</a>
+    <button class="botao-sair user-only hidden" type="button" onclick="sairUsuario()">Sair</button>
+    <a href="login.html" class="login-imagem guest-only">
+      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80" alt="Entrar" />
+    </a>
   </nav>
+</header>
 
-  <aside class="cart-sidebar" id="cart-sidebar">
-    <div class="cart-header">
-      <div>
-        <h2>Seu carrinho</h2>
-        <p>Serviços e produtos adicionados.</p>
-      </div>
-
-      <button class="cart-close" type="button" onclick="closeCart()">×</button>
+<aside class="cart-sidebar" id="cart-sidebar">
+  <div class="cart-header">
+    <div>
+      <h2>Seu carrinho</h2>
+      <p>Serviços e produtos adicionados.</p>
     </div>
-
-    <div class="cart-items" id="cart-items">
-      <p class="empty-cart">Seu carrinho está vazio.</p>
+    <button class="cart-close" type="button" onclick="fecharCarrinho()">×</button>
+  </div>
+  <div class="cart-items" id="cart-items">
+    <p class="empty-cart">Seu carrinho está vazio.</p>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>Total</span>
+      <strong id="cart-total">R$ 0,00</strong>
     </div>
+<button type="button" class="checkout-button" onclick="finalizarPedido()">
+  Finalizar pagamento
+</button>    <button type="button" class="clear-cart-button" onclick="limparCarrinho()">Limpar carrinho</button>
+  </div>
+</aside>
+<div class="cart-overlay" id="cart-overlay" onclick="fecharCarrinho()"></div>
 
-    <div class="cart-footer">
-      <div class="cart-total final">
-        <span>Total</span>
-        <strong id="cart-total">R$ 0,00</strong>
-      </div>
-
-      <button type="button" class="checkout-button" onclick="finishOrder()">
-        Finalizar pelo WhatsApp
-      </button>
-
-      <button type="button" class="clear-cart-button" onclick="clearCart()">
-        Limpar carrinho
-      </button>
-    </div>
-  </aside>
-
-  <div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
-
-  <main class="container">
-    <div class="grid">
-      <section>
-
-        <section class="hero-carousel">
-          <article class="slide active">
-            <div class="hero-content">
-              <span class="eyebrow">Saúde • Prevenção • Atendimento farmacêutico</span>
-
-              <h1>Serviços de saúde para cuidar melhor de você.</h1>
-
-              <p>
-                Aferição de pressão, testes rápidos, orientação farmacêutica
-                e acompanhamento com atendimento humanizado.
-              </p>
-
-              <div class="hero-actions">
-                <a class="btn-light" href="#produtos">Ver serviços</a>
-                <a class="btn-outline" href="index.html">Voltar ao início</a>
-              </div>
-            </div>
-
-            <div class="hero-image">
-              <img
-                src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80"
-                alt="Atendimento de saúde"
-              />
-
-              <div class="floating-card">
-                <strong>Agendamento fácil</strong>
-                Adicione o serviço ao carrinho e finalize pelo WhatsApp.
-              </div>
-            </div>
-          </article>
-
-          <div class="carousel-controls">
-            <button class="dot active" type="button"></button>
-          </div>
-        </section>
-
-        <div class="benefits">
-          <article class="benefit">
-            <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=300&q=80" alt="Pressão arterial" />
-            <h3>Pressão arterial</h3>
-            <p>Aferição rápida para acompanhar sua saúde.</p>
-          </article>
-
-          <article class="benefit">
-            <img src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=300&q=80" alt="Testes rápidos" />
-            <h3>Testes rápidos</h3>
-            <p>Praticidade para cuidar da prevenção.</p>
-          </article>
-
-          <article class="benefit">
-            <img src="https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?auto=format&fit=crop&w=300&q=80" alt="Orientação" />
-            <h3>Orientação</h3>
-            <p>Ajuda no uso correto de medicamentos.</p>
-          </article>
-
-          <article class="benefit">
-            <img src="https://images.unsplash.com/photo-1579684288361-5c1a29585a2b?auto=format&fit=crop&w=300&q=80" alt="Acompanhamento" />
-            <h3>Acompanhamento</h3>
-            <p>Suporte para sua rotina de cuidados.</p>
-          </article>
-        </div>
-
-        <div class="pharmacy-warning">
-          <strong>Importante:</strong>
-          Serviços farmacêuticos não substituem consulta médica quando necessária.
-        </div>
-
-        <div class="section-title" id="produtos">
-          <div>
-            <hgroup>
-              <h2>Serviços disponíveis</h2>
-              <h3>Agende seu atendimento com facilidade</h3>
-            </hgroup>
-
-            <p>Adicione o serviço ao carrinho e finalize a solicitação pelo WhatsApp.</p>
-          </div>
-
-          <button class="cart-secondary-button" type="button" onclick="openCart()">
-            Ver carrinho
-          </button>
-        </div>
-
-        <div class="product-tools">
-          <input type="search" id="product-search" placeholder="Buscar serviço..." />
-
-          <div class="filter-buttons">
-            <button type="button" class="filter-btn active" data-filter="all">Todos</button>
-            <button type="button" class="filter-btn" data-filter="preventivo">Preventivo</button>
-            <button type="button" class="filter-btn" data-filter="farmaceutico">Farmacêutico</button>
-          </div>
-        </div>
-
-        <div class="product-grid">
-
-          <article class="product-card" data-name="Aferição de Pressão" data-category="preventivo">
-            <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=900&q=80" alt="Aferição de pressão" />
-
-            <div class="product-body">
-              <span class="product-tag">Preventivo</span>
-              <h3>Aferição de Pressão</h3>
-              <p>Verificação rápida da pressão arterial com atendimento cuidadoso.</p>
-
-              <div class="product-meta">
-                <span class="price">
-                  <small>R$ 9,90</small>
-                  Grátis
-                </span>
-
-                <button class="buy-button" onclick="addToCart('Aferição de Pressão', 0, 'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=300&q=80')">
-                  Agendar
-                </button>
-              </div>
-            </div>
-          </article>
-
-          <article class="product-card" data-name="Testes Rápidos" data-category="preventivo">
-            <img src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=900&q=80" alt="Testes rápidos" />
-
-            <div class="product-body">
-              <span class="product-tag">Preventivo</span>
-              <h3>Testes Rápidos</h3>
-              <p>Testes práticos para auxiliar no cuidado e prevenção.</p>
-
-              <div class="product-meta">
-                <span class="price">
-                  <small>R$ 39,90</small>
-                  R$ 24,90
-                </span>
-
-                <button class="buy-button" onclick="addToCart('Testes Rápidos', 24.90, 'https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=300&q=80')">
-                  Agendar
-                </button>
-              </div>
-            </div>
-          </article>
-
-          <article class="product-card" data-name="Orientação Farmacêutica" data-category="farmaceutico">
-            <img src="https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?auto=format&fit=crop&w=900&q=80" alt="Orientação farmacêutica" />
-
-            <div class="product-body">
-              <span class="product-tag">Farmacêutico</span>
-              <h3>Orientação Farmacêutica</h3>
-              <p>Suporte profissional para uso correto de medicamentos.</p>
-
-              <div class="product-meta">
-                <span class="price">
-                  <small>R$ 29,90</small>
-                  Grátis
-                </span>
-
-                <button class="buy-button" onclick="addToCart('Orientação Farmacêutica', 0, 'https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?auto=format&fit=crop&w=300&q=80')">
-                  Agendar
-                </button>
-              </div>
-            </div>
-          </article>
-
-          <article class="product-card" data-name="Acompanhamento Farmacêutico" data-category="farmaceutico">
-            <img src="https://images.unsplash.com/photo-1579684288361-5c1a29585a2b?auto=format&fit=crop&w=900&q=80" alt="Acompanhamento farmacêutico" />
-
-            <div class="product-body">
-              <span class="product-tag">Farmacêutico</span>
-              <h3>Acompanhamento Farmacêutico</h3>
-              <p>Monitoramento para pacientes em tratamento contínuo.</p>
-
-              <div class="product-meta">
-                <span class="price">
-                  <small>R$ 59,90</small>
-                  R$ 39,90
-                </span>
-
-                <button class="buy-button" onclick="addToCart('Acompanhamento Farmacêutico', 39.90, 'https://images.unsplash.com/photo-1579684288361-5c1a29585a2b?auto=format&fit=crop&w=300&q=80')">
-                  Agendar
-                </button>
-              </div>
-            </div>
-          </article>
-
-        </div>
-
-      </section>
-    </div>
-  </main>
-
-  <footer class="container">
-    <small>
-      <a href="index.html">Início</a> •
-      <a href="medicamentos.html">Medicamentos</a> •
-      <a href="servicos.html">Serviços</a> •
-      <a href="perfumaria.html">Perfumaria</a> •
-      <a href="https://wa.me/555596601385" target="_blank">WhatsApp</a> •
-      © 2026 Pedrinho Farmácias
-    </small>
-  </footer>
 <div class="payment-modal" id="payment-modal">
   <div class="payment-box">
-    <button class="payment-close" type="button" onclick="closePaymentModal()">
-      ×
-    </button>
-
+    <button class="payment-close" type="button" onclick="fecharModalPagamento()">×</button>
     <h2>Pagamento do pedido</h2>
     <p>Escaneie o QR Code abaixo para finalizar sua compra.</p>
-
     <div id="payment-qrcode" class="payment-qrcode"></div>
-
     <div class="payment-info">
       <strong id="payment-total">R$ 0,00</strong>
       <span>Pagamento via QR Code</span>
     </div>
-
-    <button type="button" class="payment-confirm" onclick="confirmPayment()">
-      Confirmar pagamento
-    </button>
+    <button type="button" class="payment-confirm" onclick="confirmarPagamento()">Confirmar pagamento</button>
   </div>
 </div>
-  <script src="script.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<main class="container">
+
+  <section class="carrossel">
+    <article class="slide slide-1 active">
+      <div class="conteudo-slide">
+        <span>Saúde • Prevenção • Atendimento farmacêutico</span>
+        <h1>Serviços de saúde para cuidar melhor de você.</h1>
+        <p>Aferição de pressão, testes rápidos, orientação farmacêutica e acompanhamento com atendimento humanizado.</p>
+        <div class="botoes-slide">
+          <a href="#produtos" class="btn-principal">Ver serviços</a>
+          <a href="index.html" class="btn-secundario">Voltar ao início</a>
+        </div>
+      </div>
+      <div class="imagem-slide">
+        <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80" alt="Serviços de saúde" />
+      </div>
+    </article>
+  </section>
+
+  <section class="titulo-secao">
+    <h2>Principais serviços</h2>
+    <p>Atendimentos rápidos e práticos para sua saúde.</p>
+  </section>
+
+  <section class="cards-categorias">
+    <article class="card-categoria">
+      <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=900&q=80" alt="Pressão arterial" />
+      <div>
+        <h3>Pressão arterial</h3>
+        <p>Aferição rápida para acompanhar sua saúde cardiovascular.</p>
+      </div>
+    </article>
+    <article class="card-categoria">
+      <img src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=900&q=80" alt="Testes rápidos" />
+      <div>
+        <h3>Testes rápidos</h3>
+        <p>Praticidade para cuidar da prevenção.</p>
+      </div>
+    </article>
+    <article class="card-categoria">
+      <img src="https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?auto=format&fit=crop&w=900&q=80" alt="Orientação farmacêutica" />
+      <div>
+        <h3>Orientação farmacêutica</h3>
+        <p>Ajuda profissional no uso correto de medicamentos.</p>
+      </div>
+    </article>
+  </section>
+
+  <section class="aviso">
+    <strong>Importante:</strong> serviços farmacêuticos não substituem consulta médica quando necessária.
+  </section>
+
+  <section class="titulo-secao" id="produtos">
+    <h2>Serviços disponíveis</h2>
+    <p>Adicione o serviço ao carrinho e finalize o pagamento por QR Code.</p>
+  </section>
+
+  <section class="ferramentas-produtos">
+    <input type="search" id="product-search" placeholder="Buscar serviço..." />
+    <div class="filtros">
+      <button type="button" class="filter-btn active" data-filter="all">Todos</button>
+      <button type="button" class="filter-btn" data-filter="preventivo">Preventivo</button>
+      <button type="button" class="filter-btn" data-filter="farmaceutico">Farmacêutico</button>
+    </div>
+  </section>
+
+  <section class="grade-produtos">
+
+    <article class="produto-card" data-name="Aferição de Pressão" data-category="preventivo">
+      <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=900&q=80" alt="Aferição de pressão" />
+      <div class="produto-body">
+        <span class="produto-tag">Preventivo</span>
+        <h3>Aferição de Pressão</h3>
+        <p>Verificação rápida da pressão arterial com atendimento cuidadoso e profissional.</p>
+        <div class="produto-meta">
+          <span class="preco"><small>R$ 9,90</small>Grátis</span>
+          <button type="button" class="botao-comprar"
+            onclick="adicionarAoCarrinho('Aferição de Pressão', 0, 'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=300&q=80')">
+            Agendar
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="produto-card" data-name="Testes Rápidos" data-category="preventivo">
+      <img src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=900&q=80" alt="Testes rápidos" />
+      <div class="produto-body">
+        <span class="produto-tag">Preventivo</span>
+        <h3>Testes Rápidos</h3>
+        <p>Testes práticos e confiáveis para auxiliar no cuidado e prevenção de doenças.</p>
+        <div class="produto-meta">
+          <span class="preco"><small>R$ 39,90</small>R$ 24,90</span>
+          <button type="button" class="botao-comprar"
+            onclick="adicionarAoCarrinho('Testes Rápidos', 24.90, 'https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=300&q=80')">
+            Agendar
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="produto-card" data-name="Orientação Farmacêutica" data-category="farmaceutico">
+      <img src="https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?auto=format&fit=crop&w=900&q=80" alt="Orientação farmacêutica" />
+      <div class="produto-body">
+        <span class="produto-tag">Farmacêutico</span>
+        <h3>Orientação Farmacêutica</h3>
+        <p>Suporte profissional qualificado para uso correto de medicamentos e tratamentos.</p>
+        <div class="produto-meta">
+          <span class="preco"><small>R$ 29,90</small>Grátis</span>
+          <button type="button" class="botao-comprar"
+            onclick="adicionarAoCarrinho('Orientação Farmacêutica', 0, 'https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?auto=format&fit=crop&w=300&q=80')">
+            Agendar
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="produto-card" data-name="Acompanhamento Farmacêutico" data-category="farmaceutico">
+      <img src="https://images.unsplash.com/photo-1579684288361-5c1a29585a2b?auto=format&fit=crop&w=900&q=80" alt="Acompanhamento farmacêutico" />
+      <div class="produto-body">
+        <span class="produto-tag">Farmacêutico</span>
+        <h3>Acompanhamento Farmacêutico</h3>
+        <p>Monitoramento especializado para pacientes em tratamento contínuo.</p>
+        <div class="produto-meta">
+          <span class="preco"><small>R$ 59,90</small>R$ 39,90</span>
+          <button type="button" class="botao-comprar"
+            onclick="adicionarAoCarrinho('Acompanhamento Farmacêutico', 39.90, 'https://images.unsplash.com/photo-1579684288361-5c1a29585a2b?auto=format&fit=crop&w=300&q=80')">
+            Agendar
+          </button>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+</main>
+
+<footer class="rodape">
+  <p>© 2026 Pedrinho Farmácias — Saúde, cuidado e economia.</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

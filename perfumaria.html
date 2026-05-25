@@ -3,357 +3,207 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>Perfumaria | Pedrinho Farmácias</title>
-
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-  <header class="topo">
-    <div class="logo">
-      <a href="index.html">
-        <strong>Pedrinho Farmácias</strong>
-      </a>
-    </div>
+<header class="topo">
+  <div class="logo">
+    <a href="index.html"><strong>Pedrinho Farmácias</strong></a>
+  </div>
+  <nav class="acoes-topo">
+    <span class="user-name user-only hidden"></span>
+    <button class="botao-carrinho" type="button" onclick="abrirCarrinho()">
+      🛒 Carrinho <span id="cart-count">0</span>
+    </button>
+    <a href="admin.html" class="botao-voltar admin-only hidden">Painel Admin</a>
+    <button class="botao-sair user-only hidden" type="button" onclick="sairUsuario()">Sair</button>
+    <a href="login.html" class="login-imagem guest-only">
+      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80" alt="Entrar" />
+    </a>
+  </nav>
+</header>
 
-    <div class="acoes-topo">
-      <button class="botao-carrinho" type="button" onclick="openCart()">
-        🛒 Carrinho
-        <span id="cart-count">0</span>
-      </button>
-      <aside class="cart-sidebar" id="cart-sidebar">
+<aside class="cart-sidebar" id="cart-sidebar">
   <div class="cart-header">
     <div>
       <h2>Seu carrinho</h2>
       <p>Confira seus produtos antes de finalizar.</p>
     </div>
-
-    <button class="cart-close" type="button" onclick="closeCart()">
-      ×
-    </button>
+    <button class="cart-close" type="button" onclick="fecharCarrinho()">×</button>
   </div>
-
   <div class="cart-items" id="cart-items">
     <p class="empty-cart">Seu carrinho está vazio.</p>
   </div>
-
   <div class="cart-footer">
-    <div class="cart-total final">
+    <div class="cart-total">
       <span>Total</span>
       <strong id="cart-total">R$ 0,00</strong>
     </div>
-
-    <button type="button" class="checkout-button" onclick="finishOrder()">
-      Finalizar pelo WhatsApp
-    </button>
-
-    <button type="button" class="clear-cart-button" onclick="clearCart()">
-      Limpar carrinho
-    </button>
+<button type="button" class="checkout-button" onclick="finalizarPedido()">
+  Finalizar pagamento
+</button>    <button type="button" class="clear-cart-button" onclick="limparCarrinho()">Limpar carrinho</button>
   </div>
 </aside>
+<div class="cart-overlay" id="cart-overlay" onclick="fecharCarrinho()"></div>
 
-<div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
-
-      <a href="login.html" class="login-imagem">
-        <img
-          src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80"
-          alt="Login"
-        />
-      </a>
-    </div>
-  </header>
-
-  <aside class="cart-sidebar" id="cart-sidebar">
-    <div class="cart-header">
-      <div>
-        <h2>Seu carrinho</h2>
-        <p>Confira seus produtos antes de finalizar.</p>
-      </div>
-
-      <button class="cart-close" type="button" onclick="closeCart()">×</button>
-    </div>
-
-    <div class="cart-items" id="cart-items">
-      <p class="empty-cart">Seu carrinho está vazio.</p>
-    </div>
-
-    <div class="cart-footer">
-      <div class="cart-total final">
-        <span>Total</span>
-        <strong id="cart-total">R$ 0,00</strong>
-      </div>
-
-      <button type="button" class="checkout-button" onclick="finishOrder()">
-        Finalizar pelo WhatsApp
-      </button>
-
-      <button type="button" class="clear-cart-button" onclick="clearCart()">
-        Limpar carrinho
-      </button>
-    </div>
-  </aside>
-
-  <div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
-
-  <main class="container">
-
-    <section class="carrossel perfumaria-carrossel">
-
-      <article class="slide slide-1">
-        <div class="conteudo-slide">
-          <span>Beleza • Higiene • Skincare</span>
-
-          <h1>Perfumaria completa para sua rotina de cuidado.</h1>
-
-          <p>
-            Produtos de beleza, higiene pessoal, skincare, cabelo e corpo
-            com apresentação premium e preço competitivo.
-          </p>
-
-          <div class="botoes-slide">
-            <a href="#produtos" class="btn-principal">Ver produtos</a>
-            <a href="index.html" class="btn-secundario">Voltar ao início</a>
-          </div>
-        </div>
-
-        <div class="imagem-slide">
-          <img
-            src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1200&q=80"
-            alt="Produtos de perfumaria"
-          />
-        </div>
-      </article>
-
-    </section>
-
-    <section class="titulo-secao">
-      <h2>Principais categorias</h2>
-      <p>Escolha uma opção para encontrar o produto ideal.</p>
-    </section>
-
-    <section class="cards-categorias">
-
-      <article class="card-categoria">
-        <img
-          src="https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=900&q=80"
-          alt="Skincare"
-        />
-
-        <div>
-          <h3>Skincare</h3>
-          <p>Produtos para limpeza, hidratação e cuidado com a pele.</p>
-        </div>
-      </article>
-
-      <article class="card-categoria">
-        <img
-          src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=900&q=80"
-          alt="Higiene pessoal"
-        />
-
-        <div>
-          <h3>Higiene</h3>
-          <p>Itens essenciais para sua rotina de autocuidado.</p>
-        </div>
-      </article>
-
-      <article class="card-categoria">
-        <img
-          src="https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=900&q=80"
-          alt="Fragrâncias"
-        />
-
-        <div>
-          <h3>Fragrâncias</h3>
-          <p>Perfumes e aromas para todos os estilos.</p>
-        </div>
-      </article>
-
-    </section>
-
-    <section class="aviso">
-      <strong>Dica:</strong>
-      escolha produtos adequados para o seu tipo de pele, cabelo e rotina de cuidado.
-    </section>
-
-    <section class="titulo-secao" id="produtos">
-      <h2>Perfumaria em destaque</h2>
-      <p>Busque por produto ou filtre por departamento.</p>
-    </section>
-
-    <section class="ferramentas-produtos">
-      <input
-        type="search"
-        id="product-search"
-        placeholder="Buscar produto de perfumaria..."
-      />
-
-      <div class="filtros">
-        <button type="button" class="filter-btn active" data-filter="all">Todos</button>
-        <button type="button" class="filter-btn" data-filter="skincare">Skincare</button>
-        <button type="button" class="filter-btn" data-filter="higiene">Higiene</button>
-        <button type="button" class="filter-btn" data-filter="beleza">Beleza</button>
-      </div>
-    </section>
-
-    <section class="grade-produtos">
-
-      <article class="produto-card" data-name="Combo Skincare" data-category="skincare">
-        <img
-          src="https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=900&q=80"
-          alt="Skincare"
-        />
-
-        <div class="produto-body">
-          <span class="produto-tag">Skincare</span>
-
-          <h3>Combo Skincare</h3>
-
-          <p>
-            Limpeza, hidratação e cuidado para sua pele.
-          </p>
-
-          <div class="produto-meta">
-            <span class="preco">
-              <small>R$ 119,90</small>
-              R$ 89,90
-            </span>
-
-            <button
-              class="botao-comprar"
-              onclick="addToCart('Combo Skincare', 89.90, 'https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=300&q=80')"
-            >
-              Comprar
-            </button>
-          </div>
-        </div>
-      </article>
-
-      <article class="produto-card" data-name="Kit Higiene Pessoal" data-category="higiene">
-        <img
-          src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=900&q=80"
-          alt="Higiene pessoal"
-        />
-
-        <div class="produto-body">
-          <span class="produto-tag">Higiene</span>
-
-          <h3>Kit Higiene Pessoal</h3>
-
-          <p>
-            Produtos essenciais para o cuidado diário.
-          </p>
-
-          <div class="produto-meta">
-            <span class="preco">
-              <small>R$ 49,90</small>
-              R$ 34,90
-            </span>
-
-            <button
-              class="botao-comprar"
-              onclick="addToCart('Kit Higiene Pessoal', 34.90, 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=300&q=80')"
-            >
-              Comprar
-            </button>
-          </div>
-        </div>
-      </article>
-
-      <article class="produto-card" data-name="Perfume Feminino" data-category="beleza">
-        <img
-          src="https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=900&q=80"
-          alt="Perfume feminino"
-        />
-
-        <div class="produto-body">
-          <span class="produto-tag">Fragrância</span>
-
-          <h3>Perfume Feminino</h3>
-
-          <p>
-            Fragrância marcante para ocasiões especiais.
-          </p>
-
-          <div class="produto-meta">
-            <span class="preco">
-              <small>R$ 149,90</small>
-              R$ 109,90
-            </span>
-
-            <button
-              class="botao-comprar"
-              onclick="addToCart('Perfume Feminino', 109.90, 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=300&q=80')"
-            >
-              Comprar
-            </button>
-          </div>
-        </div>
-      </article>
-
-      <article class="produto-card" data-name="Kit Maquiagem" data-category="beleza">
-        <img
-          src="https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=900&q=80"
-          alt="Maquiagem"
-        />
-
-        <div class="produto-body">
-          <span class="produto-tag">Beleza</span>
-
-          <h3>Kit Maquiagem</h3>
-
-          <p>
-            Itens para realçar sua beleza com praticidade.
-          </p>
-
-          <div class="produto-meta">
-            <span class="preco">
-              <small>R$ 99,90</small>
-              R$ 74,90
-            </span>
-
-            <button
-              class="botao-comprar"
-              onclick="addToCart('Kit Maquiagem', 74.90, 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=300&q=80')"
-            >
-              Comprar
-            </button>
-          </div>
-        </div>
-      </article>
-
-    </section>
-
-  </main>
-
-  <footer class="rodape">
-    <p>© 2026 Pedrinho Farmácias</p>
-  </footer>
 <div class="payment-modal" id="payment-modal">
   <div class="payment-box">
-    <button class="payment-close" type="button" onclick="closePaymentModal()">
-      ×
-    </button>
-
+    <button class="payment-close" type="button" onclick="fecharModalPagamento()">×</button>
     <h2>Pagamento do pedido</h2>
     <p>Escaneie o QR Code abaixo para finalizar sua compra.</p>
-
     <div id="payment-qrcode" class="payment-qrcode"></div>
-
     <div class="payment-info">
       <strong id="payment-total">R$ 0,00</strong>
       <span>Pagamento via QR Code</span>
     </div>
-
-    <button type="button" class="payment-confirm" onclick="confirmPayment()">
-      Confirmar pagamento
-    </button>
+    <button type="button" class="payment-confirm" onclick="confirmarPagamento()">Confirmar pagamento</button>
   </div>
 </div>
-  <script src="script.js"></script>
+
+<main class="container">
+
+  <section class="carrossel">
+    <article class="slide slide-1 active">
+      <div class="conteudo-slide">
+        <span>Beleza • Higiene • Skincare</span>
+        <h1>Perfumaria completa para sua rotina de cuidado.</h1>
+        <p>Produtos de beleza, higiene pessoal, skincare, cabelo e corpo com apresentação premium e preço competitivo.</p>
+        <div class="botoes-slide">
+          <a href="#produtos" class="btn-principal">Ver produtos</a>
+          <a href="index.html" class="btn-secundario">Voltar ao início</a>
+        </div>
+      </div>
+      <div class="imagem-slide">
+        <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1200&q=80" alt="Produtos de perfumaria" />
+      </div>
+    </article>
+  </section>
+
+  <section class="titulo-secao">
+    <h2>Principais categorias</h2>
+    <p>Escolha uma opção para encontrar o produto ideal.</p>
+  </section>
+
+  <section class="cards-categorias">
+    <article class="card-categoria">
+      <img src="https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=900&q=80" alt="Skincare" />
+      <div>
+        <h3>Skincare</h3>
+        <p>Produtos para limpeza, hidratação e cuidado com a pele.</p>
+      </div>
+    </article>
+    <article class="card-categoria">
+      <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=900&q=80" alt="Higiene pessoal" />
+      <div>
+        <h3>Higiene</h3>
+        <p>Itens essenciais para sua rotina de autocuidado.</p>
+      </div>
+    </article>
+    <article class="card-categoria">
+      <img src="https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=900&q=80" alt="Fragrâncias" />
+      <div>
+        <h3>Fragrâncias</h3>
+        <p>Perfumes e aromas para todos os estilos.</p>
+      </div>
+    </article>
+  </section>
+
+  <section class="aviso">
+    <strong>Dica:</strong> escolha produtos adequados para o seu tipo de pele, cabelo e rotina de cuidado.
+  </section>
+
+  <section class="titulo-secao" id="produtos">
+    <h2>Perfumaria em destaque</h2>
+    <p>Busque por produto ou filtre por departamento.</p>
+  </section>
+
+  <section class="ferramentas-produtos">
+    <input type="search" id="product-search" placeholder="Buscar produto de perfumaria..." />
+    <div class="filtros">
+      <button type="button" class="filter-btn active" data-filter="all">Todos</button>
+      <button type="button" class="filter-btn" data-filter="skincare">Skincare</button>
+      <button type="button" class="filter-btn" data-filter="higiene">Higiene</button>
+      <button type="button" class="filter-btn" data-filter="beleza">Beleza</button>
+    </div>
+  </section>
+
+  <section class="grade-produtos">
+
+    <article class="produto-card" data-name="Combo Skincare" data-category="skincare">
+      <img src="https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=900&q=80" alt="Skincare" />
+      <div class="produto-body">
+        <span class="produto-tag">Skincare</span>
+        <h3>Combo Skincare</h3>
+        <p>Limpeza, hidratação e cuidado completo para sua pele.</p>
+        <div class="produto-meta">
+          <span class="preco"><small>R$ 119,90</small>R$ 89,90</span>
+          <button class="botao-comprar" type="button"
+            onclick="adicionarAoCarrinho('Combo Skincare', 89.90, 'https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=300&q=80')">
+            Comprar
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="produto-card" data-name="Kit Higiene Pessoal" data-category="higiene">
+      <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=900&q=80" alt="Higiene" />
+      <div class="produto-body">
+        <span class="produto-tag">Higiene</span>
+        <h3>Kit Higiene Pessoal</h3>
+        <p>Produtos essenciais para o cuidado diário com qualidade.</p>
+        <div class="produto-meta">
+          <span class="preco"><small>R$ 49,90</small>R$ 34,90</span>
+          <button class="botao-comprar" type="button"
+            onclick="adicionarAoCarrinho('Kit Higiene Pessoal', 34.90, 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=300&q=80')">
+            Comprar
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="produto-card" data-name="Perfume Feminino" data-category="beleza">
+      <img src="https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=900&q=80" alt="Perfume" />
+      <div class="produto-body">
+        <span class="produto-tag">Fragrância</span>
+        <h3>Perfume Feminino</h3>
+        <p>Fragrância marcante e sofisticada para ocasiões especiais.</p>
+        <div class="produto-meta">
+          <span class="preco"><small>R$ 149,90</small>R$ 109,90</span>
+          <button class="botao-comprar" type="button"
+            onclick="adicionarAoCarrinho('Perfume Feminino', 109.90, 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=300&q=80')">
+            Comprar
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="produto-card" data-name="Kit Maquiagem" data-category="beleza">
+      <img src="https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=900&q=80" alt="Maquiagem" />
+      <div class="produto-body">
+        <span class="produto-tag">Beleza</span>
+        <h3>Kit Maquiagem</h3>
+        <p>Itens selecionados para realçar sua beleza com praticidade.</p>
+        <div class="produto-meta">
+          <span class="preco"><small>R$ 99,90</small>R$ 74,90</span>
+          <button class="botao-comprar" type="button"
+            onclick="adicionarAoCarrinho('Kit Maquiagem', 74.90, 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=300&q=80')">
+            Comprar
+          </button>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+</main>
+
+<footer class="rodape">
+  <p>© 2026 Pedrinho Farmácias — Saúde, cuidado e economia.</p>
+</footer>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="script.js"></script>
 </body>

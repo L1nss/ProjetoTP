@@ -3,124 +3,78 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>Controle de Estoque | Pedrinho Farmácias</title>
-
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-  <header class="topo">
-    <div class="logo">
-      <a href="index.html">
-        <strong>Pedrinho Farmácias</strong>
-      </a>
-    </div>
-
-    <div class="acoes-topo">
-      <a href="index.html" class="botao-voltar">
-        Início
-      </a>
-
-      <button class="botao-sair user-only hidden" type="button" onclick="logoutUser()">
-        Sair
-      </button>
-
-      <a href="login.html" class="login-imagem guest-only">
-        <img
-          src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80"
-          alt="Login"
-        />
-      </a>
-    </div>
-  </header>
-
-  <main class="container estoque-page">
-
-    <section class="estoque-hero">
-      <div>
-        <span>Área administrativa</span>
-
-        <h1>Controle de estoque</h1>
-
-        <p>
-          Gerencie a quantidade disponível de medicamentos, perfumaria e serviços
-          da Pedrinho Farmácias de forma simples e organizada.
-        </p>
-      </div>
-
-      <div class="estoque-card-info">
-        <strong>Acesso restrito</strong>
-        <p>Essa página deve ser acessada apenas por usuários administradores.</p>
-      </div>
-    </section>
-
-    <section class="aviso">
-      <strong>Atenção:</strong>
-      somente administradores podem visualizar e alterar o estoque da loja.
-    </section>
-
-    <section class="painel-estoque">
-
-      <div class="estoque-topo">
-        <div>
-          <h2>Produtos cadastrados</h2>
-          <p>Atualize, visualize e acompanhe o status dos itens.</p>
-        </div>
-
-        <button type="button" class="botao-restaurar" onclick="resetStockSystem()">
-          Restaurar estoque padrão
-        </button>
-      </div>
-
-      <div class="stock-table-wrapper">
-        <table class="stock-table">
-          <thead>
-            <tr>
-              <th>Produto</th>
-              <th>Categoria</th>
-              <th>Quantidade</th>
-              <th>Status</th>
-              <th>Ação</th>
-            </tr>
-          </thead>
-
-          <tbody id="stock-table-body">
-          </tbody>
-        </table>
-      </div>
-
-    </section>
-
-  </main>
-
-  <footer class="rodape">
-    <p>© 2026 Pedrinho Farmácias</p>
-  </footer>
-<div class="payment-modal" id="payment-modal">
-  <div class="payment-box">
-    <button class="payment-close" type="button" onclick="closePaymentModal()">
-      ×
-    </button>
-
-    <h2>Pagamento do pedido</h2>
-    <p>Escaneie o QR Code abaixo para finalizar sua compra.</p>
-
-    <div id="payment-qrcode" class="payment-qrcode"></div>
-
-    <div class="payment-info">
-      <strong id="payment-total">R$ 0,00</strong>
-      <span>Pagamento via QR Code</span>
-    </div>
-
-    <button type="button" class="payment-confirm" onclick="confirmPayment()">
-      Confirmar pagamento
-    </button>
+<header class="topo">
+  <div class="logo">
+    <a href="index.html"><strong>Pedrinho Farmácias</strong></a>
   </div>
-</div>
-  <script src="script.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <nav class="acoes-topo">
+    <span class="user-name user-only hidden"></span>
+    <a href="index.html" class="botao-voltar">← Início</a>
+    <a href="admin.html" class="botao-voltar admin-only hidden">Painel Admin</a>
+    <button class="botao-sair user-only hidden" type="button" onclick="sairUsuario()">Sair</button>
+    <a href="login.html" class="login-imagem guest-only">
+      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80" alt="Login" />
+    </a>
+  </nav>
+</header>
+
+<main class="container estoque-page">
+
+  <section class="estoque-hero">
+    <div>
+      <span>Área administrativa</span>
+      <h1>Controle de estoque</h1>
+      <p>Gerencie a quantidade disponível de medicamentos, perfumaria e serviços da Pedrinho Farmácias de forma prática e segura.</p>
+    </div>
+    <div class="estoque-card-info">
+      <strong>Acesso restrito</strong>
+      <p>Essa página é acessível apenas por administradores autenticados.</p>
+    </div>
+  </section>
+
+  <section class="aviso">
+    <strong>Atenção:</strong> somente administradores podem visualizar e alterar o estoque da loja.
+  </section>
+
+  <section class="painel-estoque">
+    <div class="estoque-topo">
+      <div>
+        <h2>Produtos cadastrados</h2>
+        <p>Atualize, visualize e acompanhe o status dos itens em estoque.</p>
+      </div>
+      <button type="button" class="botao-restaurar" onclick="restaurarEstoquePadrao()">
+        ↺ Restaurar padrão
+      </button>
+    </div>
+
+    <div class="stock-table-wrapper">
+      <table class="stock-table">
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Categoria</th>
+            <th>Quantidade</th>
+            <th>Status</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="stock-table-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer class="rodape">
+  <p>© 2026 Pedrinho Farmácias — Saúde, cuidado e economia.</p>
+</footer>
+
 <script src="script.js"></script>
 </body>
 </html>

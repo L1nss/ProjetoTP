@@ -3,358 +3,207 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>Medicamentos | Pedrinho Farmácias</title>
-
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-  <header class="topo">
-    <div class="logo">
-      <a href="index.html">
-        <strong>Pedrinho Farmácias</strong>
-      </a>
-    </div>
+<header class="topo">
+  <div class="logo">
+    <a href="index.html"><strong>Pedrinho Farmácias</strong></a>
+  </div>
+  <nav class="acoes-topo">
+    <span class="user-name user-only hidden"></span>
+    <button class="botao-carrinho" type="button" onclick="abrirCarrinho()">
+      🛒 Carrinho <span id="cart-count">0</span>
+    </button>
+    <a href="admin.html" class="botao-voltar admin-only hidden">Painel Admin</a>
+    <button class="botao-sair user-only hidden" type="button" onclick="sairUsuario()">Sair</button>
+    <a href="login.html" class="login-imagem guest-only">
+      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80" alt="Entrar" />
+    </a>
+  </nav>
+</header>
 
-    <div class="acoes-topo">
-      <button class="botao-carrinho" type="button" onclick="openCart()">
-        🛒 Carrinho
-        <span id="cart-count">0</span>
-      </button>
-      <aside class="cart-sidebar" id="cart-sidebar">
+<aside class="cart-sidebar" id="cart-sidebar">
   <div class="cart-header">
     <div>
       <h2>Seu carrinho</h2>
       <p>Confira seus produtos antes de finalizar.</p>
     </div>
-
-    <button class="cart-close" type="button" onclick="closeCart()">
-      ×
-    </button>
+    <button class="cart-close" type="button" onclick="fecharCarrinho()">×</button>
   </div>
-
   <div class="cart-items" id="cart-items">
     <p class="empty-cart">Seu carrinho está vazio.</p>
   </div>
-
   <div class="cart-footer">
-    <div class="cart-total final">
+    <div class="cart-total">
       <span>Total</span>
       <strong id="cart-total">R$ 0,00</strong>
     </div>
-
-    <button type="button" class="checkout-button" onclick="finishOrder()">
-      Finalizar pelo WhatsApp
-    </button>
-
-    <button type="button" class="clear-cart-button" onclick="clearCart()">
-      Limpar carrinho
-    </button>
+<button type="button" class="checkout-button" onclick="finalizarPedido()">
+  Finalizar pagamento
+</button>    <button type="button" class="clear-cart-button" onclick="limparCarrinho()">Limpar carrinho</button>
   </div>
 </aside>
+<div class="cart-overlay" id="cart-overlay" onclick="fecharCarrinho()"></div>
 
-<div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
-
-      <a href="login.html" class="login-imagem">
-        <img
-          src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80"
-          alt="Login"
-        />
-      </a>
-    </div>
-  </header>
-
-  <aside class="cart-sidebar" id="cart-sidebar">
-    <div class="cart-header">
-      <div>
-        <h2>Seu carrinho</h2>
-        <p>Confira seus produtos antes de finalizar.</p>
-      </div>
-
-      <button class="cart-close" type="button" onclick="closeCart()">×</button>
-    </div>
-
-    <div class="cart-items" id="cart-items">
-      <p class="empty-cart">Seu carrinho está vazio.</p>
-    </div>
-
-    <div class="cart-footer">
-      <div class="cart-total final">
-        <span>Total</span>
-        <strong id="cart-total">R$ 0,00</strong>
-      </div>
-
-      <button type="button" class="checkout-button" onclick="finishOrder()">
-        Finalizar pelo WhatsApp
-      </button>
-
-      <button type="button" class="clear-cart-button" onclick="clearCart()">
-        Limpar carrinho
-      </button>
-    </div>
-  </aside>
-
-  <div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
-
-  <main class="container">
-
-    <section class="carrossel medicamentos-carrossel">
-
-      <article class="slide slide-1">
-        <div class="conteudo-slide">
-          <span>Medicamentos • Genéricos • Vitaminas</span>
-
-          <h1>Medicamentos com segurança, economia e orientação.</h1>
-
-          <p>
-            Encontre medicamentos essenciais, genéricos, vitaminas e suplementos
-            com atendimento responsável da Pedrinho Farmácias.
-          </p>
-
-          <div class="botoes-slide">
-            <a href="#produtos" class="btn-principal">Ver medicamentos</a>
-            <a href="index.html" class="btn-secundario">Voltar ao início</a>
-          </div>
-        </div>
-
-        <div class="imagem-slide">
-          <img
-            src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=1200&q=80"
-            alt="Medicamentos organizados"
-          />
-        </div>
-      </article>
-
-    </section>
-
-    <section class="titulo-secao">
-      <h2>Principais categorias</h2>
-      <p>Escolha uma opção para encontrar o produto ideal.</p>
-    </section>
-
-    <section class="cards-categorias">
-
-      <article class="card-categoria">
-        <img
-          src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=900&q=80"
-          alt="Genéricos"
-        />
-
-        <div>
-          <h3>Genéricos</h3>
-          <p>Opções econômicas, seguras e confiáveis.</p>
-        </div>
-      </article>
-
-      <article class="card-categoria">
-        <img
-          src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=900&q=80"
-          alt="Vitaminas"
-        />
-
-        <div>
-          <h3>Vitaminas</h3>
-          <p>Suplementos para energia, imunidade e bem-estar.</p>
-        </div>
-      </article>
-
-      <article class="card-categoria">
-        <img
-          src="https://images.unsplash.com/photo-1628771065518-0d82f1938462?auto=format&fit=crop&w=900&q=80"
-          alt="Essenciais"
-        />
-
-        <div>
-          <h3>Essenciais</h3>
-          <p>Produtos básicos para manter em casa com segurança.</p>
-        </div>
-      </article>
-
-    </section>
-
-    <section class="aviso">
-      <strong>Atenção:</strong>
-      não use medicamentos sem orientação. Leia a bula e consulte um profissional de saúde.
-      Alguns produtos podem exigir receita médica.
-    </section>
-
-    <section class="titulo-secao" id="produtos">
-      <h2>Medicamentos em destaque</h2>
-      <p>Busque por nome ou filtre os produtos disponíveis.</p>
-    </section>
-
-    <section class="ferramentas-produtos">
-      <input
-        type="search"
-        id="product-search"
-        placeholder="Buscar medicamento..."
-      />
-
-      <div class="filtros">
-        <button type="button" class="filter-btn active" data-filter="all">Todos</button>
-        <button type="button" class="filter-btn" data-filter="generico">Genéricos</button>
-        <button type="button" class="filter-btn" data-filter="vitamina">Vitaminas</button>
-        <button type="button" class="filter-btn" data-filter="essencial">Essenciais</button>
-      </div>
-    </section>
-
-    <section class="grade-produtos">
-
-      <article class="produto-card" data-name="Kit Medicamentos Essenciais" data-category="essencial">
-        <img
-          src="https://images.unsplash.com/photo-1628771065518-0d82f1938462?auto=format&fit=crop&w=900&q=80"
-          alt="Medicamentos essenciais"
-        />
-
-        <div class="produto-body">
-          <span class="produto-tag">Essencial</span>
-
-          <h3>Kit Medicamentos Essenciais</h3>
-
-          <p>
-            Produtos básicos para manter em casa com segurança.
-          </p>
-
-          <div class="produto-meta">
-            <span class="preco">
-              <small>R$ 59,90</small>
-              R$ 39,90
-            </span>
-
-            <button
-              class="botao-comprar"
-              onclick="addToCart('Kit Medicamentos Essenciais', 39.90, 'https://images.unsplash.com/photo-1628771065518-0d82f1938462?auto=format&fit=crop&w=300&q=80')"
-            >
-              Comprar
-            </button>
-          </div>
-        </div>
-      </article>
-
-      <article class="produto-card" data-name="Medicamento Genérico" data-category="generico">
-        <img
-          src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=900&q=80"
-          alt="Medicamento genérico"
-        />
-
-        <div class="produto-body">
-          <span class="produto-tag">Genérico</span>
-
-          <h3>Medicamento Genérico</h3>
-
-          <p>
-            Economia e qualidade para o tratamento do dia a dia.
-          </p>
-
-          <div class="produto-meta">
-            <span class="preco">
-              <small>R$ 34,90</small>
-              R$ 24,90
-            </span>
-
-            <button
-              class="botao-comprar"
-              onclick="addToCart('Medicamento Genérico', 24.90, 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=300&q=80')"
-            >
-              Comprar
-            </button>
-          </div>
-        </div>
-      </article>
-
-      <article class="produto-card" data-name="Vitaminas e Imunidade" data-category="vitamina">
-        <img
-          src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=900&q=80"
-          alt="Vitaminas"
-        />
-
-        <div class="produto-body">
-          <span class="produto-tag">Vitamina</span>
-
-          <h3>Vitaminas e Imunidade</h3>
-
-          <p>
-            Suplementos para energia, disposição e bem-estar.
-          </p>
-
-          <div class="produto-meta">
-            <span class="preco">
-              <small>R$ 84,90</small>
-              R$ 64,90
-            </span>
-
-            <button
-              class="botao-comprar"
-              onclick="addToCart('Vitaminas e Imunidade', 64.90, 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=300&q=80')"
-            >
-              Comprar
-            </button>
-          </div>
-        </div>
-      </article>
-
-      <article class="produto-card" data-name="Analgésico" data-category="essencial">
-        <img
-          src="https://images.unsplash.com/photo-1471864190281-a93a3070b6de?auto=format&fit=crop&w=900&q=80"
-          alt="Analgésico"
-        />
-
-        <div class="produto-body">
-          <span class="produto-tag">Essencial</span>
-
-          <h3>Analgésico</h3>
-
-          <p>
-            Alívio para dores leves e desconfortos do dia a dia.
-          </p>
-
-          <div class="produto-meta">
-            <span class="preco">
-              <small>R$ 22,90</small>
-              R$ 16,90
-            </span>
-
-            <button
-              class="botao-comprar"
-              onclick="addToCart('Analgésico', 16.90, 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?auto=format&fit=crop&w=300&q=80')"
-            >
-              Comprar
-            </button>
-          </div>
-        </div>
-      </article>
-
-    </section>
-
-  </main>
-
-  <footer class="rodape">
-    <p>© 2026 Pedrinho Farmácias</p>
-  </footer>
 <div class="payment-modal" id="payment-modal">
   <div class="payment-box">
-    <button class="payment-close" type="button" onclick="closePaymentModal()">
-      ×
-    </button>
-
+    <button class="payment-close" type="button" onclick="fecharModalPagamento()">×</button>
     <h2>Pagamento do pedido</h2>
     <p>Escaneie o QR Code abaixo para finalizar sua compra.</p>
-
     <div id="payment-qrcode" class="payment-qrcode"></div>
-
     <div class="payment-info">
       <strong id="payment-total">R$ 0,00</strong>
       <span>Pagamento via QR Code</span>
     </div>
-
-    <button type="button" class="payment-confirm" onclick="confirmPayment()">
-      Confirmar pagamento
-    </button>
+    <button type="button" class="payment-confirm" onclick="confirmarPagamento()">Confirmar pagamento</button>
   </div>
 </div>
-  <script src="script.js"></script>
+
+<main class="container">
+
+  <section class="carrossel">
+    <article class="slide slide-1 active">
+      <div class="conteudo-slide">
+        <span>Saúde • Qualidade • Economia</span>
+        <h1>Medicamentos com qualidade e preço acessível.</h1>
+        <p>Genéricos, vitaminas, analgésicos e kits essenciais para você e sua família. Atendimento farmacêutico especializado.</p>
+        <div class="botoes-slide">
+          <a href="#produtos" class="btn-principal">Ver produtos</a>
+          <a href="index.html" class="btn-secundario">Voltar ao início</a>
+        </div>
+      </div>
+      <div class="imagem-slide">
+        <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=1200&q=80" alt="Medicamentos" />
+      </div>
+    </article>
+  </section>
+
+  <section class="titulo-secao">
+    <h2>Principais categorias</h2>
+    <p>Encontre o medicamento ideal para sua necessidade.</p>
+  </section>
+
+  <section class="cards-categorias">
+    <article class="card-categoria">
+      <img src="https://images.unsplash.com/photo-1471864190281-a93a3070b6de?auto=format&fit=crop&w=900&q=80" alt="Kits medicamentos" />
+      <div>
+        <h3>Kits essenciais</h3>
+        <p>Conjuntos completos para farmácia domiciliar.</p>
+      </div>
+    </article>
+    <article class="card-categoria">
+      <img src="https://images.unsplash.com/photo-1550572017-ea19deb41f10?auto=format&fit=crop&w=900&q=80" alt="Genéricos" />
+      <div>
+        <h3>Genéricos</h3>
+        <p>Mesma eficácia com preço mais acessível.</p>
+      </div>
+    </article>
+    <article class="card-categoria">
+      <img src="https://images.unsplash.com/photo-1631549916768-4119b2e5f926?auto=format&fit=crop&w=900&q=80" alt="Vitaminas" />
+      <div>
+        <h3>Vitaminas</h3>
+        <p>Suplementos para imunidade e bem-estar.</p>
+      </div>
+    </article>
+  </section>
+
+  <section class="aviso">
+    <strong>Atenção:</strong> medicamentos devem ser utilizados com orientação profissional. Em caso de dúvidas, consulte nosso farmacêutico.
+  </section>
+
+  <section class="titulo-secao" id="produtos">
+    <h2>Medicamentos em destaque</h2>
+    <p>Busque por produto ou filtre por categoria.</p>
+  </section>
+
+  <section class="ferramentas-produtos">
+    <input type="search" id="product-search" placeholder="Buscar medicamento..." />
+    <div class="filtros">
+      <button type="button" class="filter-btn active" data-filter="all">Todos</button>
+      <button type="button" class="filter-btn" data-filter="essencial">Essenciais</button>
+      <button type="button" class="filter-btn" data-filter="generico">Genéricos</button>
+      <button type="button" class="filter-btn" data-filter="vitamina">Vitaminas</button>
+    </div>
+  </section>
+
+  <section class="grade-produtos">
+
+    <article class="produto-card" data-name="Kit Medicamentos Essenciais" data-category="essencial">
+      <img src="https://images.unsplash.com/photo-1471864190281-a93a3070b6de?auto=format&fit=crop&w=900&q=80" alt="Kit essencial" />
+      <div class="produto-body">
+        <span class="produto-tag">Essencial</span>
+        <h3>Kit Medicamentos Essenciais</h3>
+        <p>Conjunto completo para a farmácia domiciliar: antitérmico, analgésico e mais.</p>
+        <div class="produto-meta">
+          <span class="preco"><small>R$ 89,90</small>R$ 64,90</span>
+          <button class="botao-comprar" type="button"
+            onclick="adicionarAoCarrinho('Kit Medicamentos Essenciais', 64.90, 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?auto=format&fit=crop&w=300&q=80')">
+            Comprar
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="produto-card" data-name="Medicamento Genérico" data-category="generico">
+      <img src="https://images.unsplash.com/photo-1550572017-ea19deb41f10?auto=format&fit=crop&w=900&q=80" alt="Genérico" />
+      <div class="produto-body">
+        <span class="produto-tag">Genérico</span>
+        <h3>Medicamento Genérico</h3>
+        <p>Mesma eficácia dos medicamentos de referência com custo reduzido.</p>
+        <div class="produto-meta">
+          <span class="preco"><small>R$ 29,90</small>R$ 19,90</span>
+          <button class="botao-comprar" type="button"
+            onclick="adicionarAoCarrinho('Medicamento Genérico', 19.90, 'https://images.unsplash.com/photo-1550572017-ea19deb41f10?auto=format&fit=crop&w=300&q=80')">
+            Comprar
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="produto-card" data-name="Vitaminas e Imunidade" data-category="vitamina">
+      <img src="https://images.unsplash.com/photo-1631549916768-4119b2e5f926?auto=format&fit=crop&w=900&q=80" alt="Vitaminas" />
+      <div class="produto-body">
+        <span class="produto-tag">Vitamina</span>
+        <h3>Vitaminas e Imunidade</h3>
+        <p>Suplementação completa para fortalecer o sistema imunológico.</p>
+        <div class="produto-meta">
+          <span class="preco"><small>R$ 59,90</small>R$ 44,90</span>
+          <button class="botao-comprar" type="button"
+            onclick="adicionarAoCarrinho('Vitaminas e Imunidade', 44.90, 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?auto=format&fit=crop&w=300&q=80')">
+            Comprar
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <article class="produto-card" data-name="Analgésico" data-category="essencial">
+      <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=900&q=80" alt="Analgésico" />
+      <div class="produto-body">
+        <span class="produto-tag">Essencial</span>
+        <h3>Analgésico</h3>
+        <p>Alívio rápido de dores e desconfortos com qualidade comprovada.</p>
+        <div class="produto-meta">
+          <span class="preco"><small>R$ 18,90</small>R$ 12,90</span>
+          <button class="botao-comprar" type="button"
+            onclick="adicionarAoCarrinho('Analgésico', 12.90, 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=300&q=80')">
+            Comprar
+          </button>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+</main>
+
+<footer class="rodape">
+  <p>© 2026 Pedrinho Farmácias — Saúde, cuidado e economia.</p>
+</footer>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="script.js"></script>
 </body>
