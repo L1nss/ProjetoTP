@@ -1,30 +1,24 @@
 /* =====================================================
-   PEDRINHO FARMÁCIAS - SCRIPT.JS COMPLETO CORRIGIDO
-   Funções em português
-   Carrinho, página de pagamento, QR Code, login,
-   estoque, admin e filtros
+   PEDRINHO FARMÁCIAS - SCRIPT.JS COMPLETO FUNCIONAL
+   Carrinho, compras, pagamento, agendamento, login,
+   estoque, painel admin, logs, notas e gráfico
 ===================================================== */
 
 /* ===============================
-   FUNÇÕES ÚTEIS
+   UTILITÁRIOS
 ================================ */
 
-function obterStorage(chave, valorPadrao = null) {
+function obterStorage(chave, padrao = null) {
   try {
     const dados = localStorage.getItem(chave);
-    return dados ? JSON.parse(dados) : valorPadrao;
-  } catch (erro) {
-    console.error("Erro ao ler localStorage:", erro);
-    return valorPadrao;
+    return dados ? JSON.parse(dados) : padrao;
+  } catch {
+    return padrao;
   }
 }
 
 function salvarStorage(chave, valor) {
-  try {
-    localStorage.setItem(chave, JSON.stringify(valor));
-  } catch (erro) {
-    console.error("Erro ao salvar localStorage:", erro);
-  }
+  localStorage.setItem(chave, JSON.stringify(valor));
 }
 
 function formatarDinheiro(valor) {
@@ -50,70 +44,6 @@ function criarIdSeguro(texto) {
 }
 
 /* ===============================
-   CARROSSEL
-================================ */
-
-let slideAtual = 0;
-let intervaloCarrossel = null;
-
-function mostrarSlide(indice) {
-  const slides = document.querySelectorAll(".slide");
-  const bolinhas = document.querySelectorAll(".dot, .bolinhas span");
-
-  if (!slides.length) return;
-
-  slides.forEach((slide, i) => {
-    slide.classList.toggle("active", i === indice);
-  });
-
-  bolinhas.forEach((bolinha, i) => {
-    bolinha.classList.toggle("active", i === indice);
-  });
-
-  slideAtual = indice;
-}
-
-function proximoSlide() {
-  const slides = document.querySelectorAll(".slide");
-
-  if (!slides.length) return;
-
-  mostrarSlide((slideAtual + 1) % slides.length);
-}
-
-function iniciarCarrossel() {
-  const slides = document.querySelectorAll(".slide");
-
-  if (slides.length <= 1) return;
-
-  pararCarrossel();
-
-  intervaloCarrossel = setInterval(proximoSlide, 5500);
-}
-
-function pararCarrossel() {
-  if (intervaloCarrossel) {
-    clearInterval(intervaloCarrossel);
-    intervaloCarrossel = null;
-  }
-}
-
-function configurarCarrossel() {
-  const bolinhas = document.querySelectorAll(".dot, .bolinhas span");
-
-  bolinhas.forEach((bolinha, indice) => {
-    bolinha.addEventListener("click", () => {
-      pararCarrossel();
-      mostrarSlide(indice);
-      iniciarCarrossel();
-    });
-  });
-
-  mostrarSlide(0);
-  iniciarCarrossel();
-}
-
-/* ===============================
    ESTOQUE
 ================================ */
 
@@ -134,44 +64,44 @@ const estoquePadrao = [
   { nome: "Acompanhamento Farmacêutico", categoria: "Serviços", quantidade: 10 }
 ];
 
+const servicosAgendamento = [
+  "Aferição de Pressão",
+  "Testes Rápidos",
+  "Orientação Farmacêutica",
+  "Acompanhamento Farmacêutico"
+];
+
 function converterEstoqueAntigo(lista) {
   if (!Array.isArray(lista)) return null;
 
   return lista
-    .map((item) => {
-      return {
-        nome: item.nome || item.name,
-        categoria: item.categoria || item.category,
-        quantidade: Number(item.quantidade ?? item.quantity ?? 0)
-      };
-    })
+    .map((item) => ({
+      nome: item.nome || item.name,
+      categoria: item.categoria || item.category,
+      quantidade: Number(item.quantidade ?? item.quantity ?? 0)
+    }))
     .filter((item) => item.nome);
 }
 
 function obterListaEstoque() {
-  const estoqueSalvo = obterStorage("pedrinhoStock", null);
-  const estoqueConvertido = converterEstoqueAntigo(estoqueSalvo);
+  const salvo = obterStorage("pedrinhoStock", null);
+  const convertido = converterEstoqueAntigo(salvo);
 
-  if (!estoqueConvertido || !Array.isArray(estoqueConvertido)) {
+  if (!convertido || !convertido.length) {
     salvarStorage("pedrinhoStock", estoquePadrao);
     return [...estoquePadrao];
   }
 
-  return estoqueConvertido;
+  return convertido;
 }
 
-function salvarListaEstoque(listaEstoque) {
-  salvarStorage("pedrinhoStock", listaEstoque);
+function salvarListaEstoque(lista) {
+  salvarStorage("pedrinhoStock", lista);
 }
 
 function obterEstoqueProduto(nomeProduto) {
-  const listaEstoque = obterListaEstoque();
-
-  const produto = listaEstoque.find((item) => {
-    return item.nome === nomeProduto;
-  });
-
-  return produto ? Number(produto.quantidade) : 0;
+  const produto = obterListaEstoque().find((item) => item.nome === nomeProduto);
+  return produto ? Number(produto.quantidade) : 999;
 }
 
 function obterStatusEstoque(quantidade) {
@@ -201,32 +131,24 @@ function obterStatusEstoque(quantidade) {
 }
 
 function diminuirEstoque(nomeProduto, quantidade) {
-  const listaEstoque = obterListaEstoque();
-
-  const produto = listaEstoque.find((item) => {
-    return item.nome === nomeProduto;
-  });
+  const lista = obterListaEstoque();
+  const produto = lista.find((item) => item.nome === nomeProduto);
 
   if (!produto) return;
 
   produto.quantidade = Math.max(0, Number(produto.quantidade) - Number(quantidade));
-
-  salvarListaEstoque(listaEstoque);
+  salvarListaEstoque(lista);
 }
 
 function atualizarEstoqueProduto(nomeProduto, novaQuantidade) {
-  const listaEstoque = obterListaEstoque();
-
-  const produto = listaEstoque.find((item) => {
-    return item.nome === nomeProduto;
-  });
+  const lista = obterListaEstoque();
+  const produto = lista.find((item) => item.nome === nomeProduto);
 
   if (!produto) return;
 
   produto.quantidade = Math.max(0, Number(novaQuantidade));
 
-  salvarListaEstoque(listaEstoque);
-
+  salvarListaEstoque(lista);
   renderizarBadgesEstoque();
   renderizarTabelaEstoque();
 }
@@ -237,9 +159,7 @@ function restaurarEstoquePadrao() {
     return;
   }
 
-  const confirmar = confirm("Deseja restaurar o estoque padrão?");
-
-  if (!confirmar) return;
+  if (!confirm("Deseja restaurar o estoque padrão?")) return;
 
   salvarStorage("pedrinhoStock", estoquePadrao);
 
@@ -309,7 +229,7 @@ function renderizarTabelaEstoque() {
   if (!verificarSeAdmin()) {
     corpoTabela.innerHTML = `
       <tr>
-        <td colspan="5" style="text-align:center;color:#999;padding:2rem">
+        <td colspan="5" style="text-align:center;padding:2rem;color:#999;">
           Acesso restrito para administradores.
         </td>
       </tr>
@@ -317,11 +237,9 @@ function renderizarTabelaEstoque() {
     return;
   }
 
-  const listaEstoque = obterListaEstoque();
-
   corpoTabela.innerHTML = "";
 
-  listaEstoque.forEach((produto) => {
+  obterListaEstoque().forEach((produto) => {
     const status = obterStatusEstoque(produto.quantidade);
     const idInput = `stock-${criarIdSeguro(produto.nome)}`;
 
@@ -329,24 +247,13 @@ function renderizarTabelaEstoque() {
 
     linha.innerHTML = `
       <td><strong>${produto.nome}</strong></td>
-
       <td>${produto.categoria}</td>
-
       <td>
-        <input
-          type="number"
-          min="0"
-          value="${produto.quantidade}"
-          id="${idInput}"
-        />
+        <input type="number" min="0" value="${produto.quantidade}" id="${idInput}" />
       </td>
-
       <td>
-        <span class="${status.classe}">
-          ${status.texto}
-        </span>
+        <span class="${status.classe}">${status.texto}</span>
       </td>
-
       <td>
         <button
           type="button"
@@ -368,23 +275,22 @@ function salvarEstoqueDoInput(nomeProduto) {
     return;
   }
 
-  const idInput = `stock-${criarIdSeguro(nomeProduto)}`;
-  const input = document.getElementById(idInput);
+  const input = document.getElementById(`stock-${criarIdSeguro(nomeProduto)}`);
 
   if (!input) return;
 
-  const novaQuantidade = Number(input.value);
+  const quantidade = Number(input.value);
 
-  if (Number.isNaN(novaQuantidade) || novaQuantidade < 0) {
+  if (Number.isNaN(quantidade) || quantidade < 0) {
     alert("Informe uma quantidade válida.");
     return;
   }
 
-  atualizarEstoqueProduto(nomeProduto, novaQuantidade);
+  atualizarEstoqueProduto(nomeProduto, quantidade);
 
   adicionarLogAdmin("ESTOQUE_ATUALIZADO", `Estoque atualizado para ${nomeProduto}.`, {
     produto: nomeProduto,
-    quantidade: novaQuantidade
+    quantidade: quantidade
   });
 
   alert("Estoque atualizado com sucesso!");
@@ -394,25 +300,20 @@ function salvarEstoqueDoInput(nomeProduto) {
    CARRINHO
 ================================ */
 
-let carrinho = obterStorage("pedrinhoCart", []);
-let pedidoPagamentoPendente = null;
-
 function converterCarrinhoAntigo(lista) {
   if (!Array.isArray(lista)) return [];
 
   return lista
-    .map((item) => {
-      return {
-        nome: item.nome || item.name,
-        preco: Number(item.preco ?? item.price ?? 0),
-        imagem: item.imagem || item.image || "",
-        quantidade: Number(item.quantidade ?? item.quantity ?? 1)
-      };
-    })
+    .map((item) => ({
+      nome: item.nome || item.name,
+      preco: Number(item.preco ?? item.price ?? 0),
+      imagem: item.imagem || item.image || "",
+      quantidade: Number(item.quantidade ?? item.quantity ?? 1)
+    }))
     .filter((item) => item.nome);
 }
 
-carrinho = converterCarrinhoAntigo(carrinho);
+let carrinho = converterCarrinhoAntigo(obterStorage("pedrinhoCart", []));
 
 function salvarCarrinho() {
   salvarStorage("pedrinhoCart", carrinho);
@@ -431,38 +332,38 @@ function obterQuantidadeCarrinho() {
 }
 
 function obterQuantidadeProdutoCarrinho(nomeProduto) {
-  const produto = carrinho.find((item) => {
-    return item.nome === nomeProduto;
-  });
-
+  const produto = carrinho.find((item) => item.nome === nomeProduto);
   return produto ? Number(produto.quantidade) : 0;
 }
 
 function adicionarAoCarrinho(nome, preco, imagem) {
-  const estoqueDisponivel = obterEstoqueProduto(nome);
-  const quantidadeNoCarrinho = obterQuantidadeProdutoCarrinho(nome);
+  if (servicosAgendamento.includes(nome)) {
+    agendarServico(nome, preco, imagem);
+    return;
+  }
 
-  if (estoqueDisponivel <= 0) {
+  const estoque = obterEstoqueProduto(nome);
+  const quantidadeNoCarrinho = obterQuantidadeProdutoCarrinho(nomeProduto = nome);
+
+  if (estoque <= 0) {
     alert("Produto esgotado.");
     return;
   }
 
-  if (quantidadeNoCarrinho >= estoqueDisponivel) {
+  if (quantidadeNoCarrinho >= estoque) {
     alert("Você já adicionou a quantidade máxima disponível desse produto.");
     return;
   }
 
-  const produtoExistente = carrinho.find((item) => {
-    return item.nome === nome;
-  });
+  const existente = carrinho.find((item) => item.nome === nome);
 
-  if (produtoExistente) {
-    produtoExistente.quantidade += 1;
+  if (existente) {
+    existente.quantidade += 1;
   } else {
     carrinho.push({
-      nome,
+      nome: nome,
       preco: Number(preco),
-      imagem,
+      imagem: imagem,
       quantidade: 1
     });
   }
@@ -477,9 +378,7 @@ function aumentarQuantidade(indice) {
 
   if (!item) return;
 
-  const estoqueDisponivel = obterEstoqueProduto(item.nome);
-
-  if (item.quantidade >= estoqueDisponivel) {
+  if (item.quantidade >= obterEstoqueProduto(item.nome)) {
     alert("Quantidade máxima disponível em estoque.");
     return;
   }
@@ -515,9 +414,7 @@ function removerDoCarrinho(indice) {
 function limparCarrinho() {
   if (!carrinho.length) return;
 
-  const confirmar = confirm("Deseja limpar o carrinho?");
-
-  if (!confirmar) return;
+  if (!confirm("Deseja limpar o carrinho?")) return;
 
   carrinho = [];
 
@@ -548,8 +445,6 @@ function renderizarCarrinho() {
   }
 
   carrinho.forEach((item, indice) => {
-    const estoqueDisponivel = obterEstoqueProduto(item.nome);
-
     const artigo = document.createElement("article");
     artigo.className = "cart-item";
 
@@ -561,20 +456,14 @@ function renderizarCarrinho() {
           <strong>${item.nome}</strong>
           <span>${formatarDinheiro(item.preco)}</span>
           <small class="cart-stock-info">
-            Estoque disponível: ${estoqueDisponivel}
+            Estoque disponível: ${obterEstoqueProduto(item.nome)}
           </small>
         </div>
 
         <div class="cart-item-actions">
-          <button type="button" onclick="diminuirQuantidade(${indice})">
-            −
-          </button>
-
+          <button type="button" onclick="diminuirQuantidade(${indice})">−</button>
           <span>${item.quantidade}</span>
-
-          <button type="button" onclick="aumentarQuantidade(${indice})">
-            +
-          </button>
+          <button type="button" onclick="aumentarQuantidade(${indice})">+</button>
         </div>
 
         <button type="button" class="remove-item" onclick="removerDoCarrinho(${indice})">
@@ -614,172 +503,18 @@ function fecharCarrinho() {
    PAGAMENTO
 ================================ */
 
-function finalizarPedido() {
-  if (!carrinho.length) {
-    alert("Seu carrinho está vazio.");
-    return;
-  }
-
-  const produtoIndisponivel = carrinho.some((item) => {
-    return item.quantidade > obterEstoqueProduto(item.nome);
-  });
-
-  if (produtoIndisponivel) {
-    alert("Algum produto do carrinho não possui estoque suficiente.");
-    return;
-  }
-
-  const usuarioLogado = obterUsuarioLogado();
-  const total = obterTotalCarrinho();
-
-  const pedido = {
-    cliente: usuarioLogado
-      ? {
-          nome: usuarioLogado.nome,
-          email: usuarioLogado.email,
-          perfil: usuarioLogado.perfil || "usuario"
-        }
-      : {
-          nome: "Cliente não identificado",
-          email: "Não informado",
-          perfil: "visitante"
-        },
-
-    itens: carrinho.map((item) => {
-      return {
-        nome: item.nome,
-        preco: Number(item.preco),
-        imagem: item.imagem,
-        quantidade: Number(item.quantidade),
-        subtotal: Number(item.preco) * Number(item.quantidade)
-      };
-    }),
-
-    total: total,
-    totalBruto: total,
-    data: new Date().toLocaleString("pt-BR")
-  };
-
-  salvarStorage("pedrinhoPedidoPendente", pedido);
-
-  window.location.href = "pagamento.html";
-}
-
-function iniciarPagamento() {
-  finalizarPedido();
-}
-
-function abrirModalPagamento(pedido) {
-  const modal = document.querySelector("#payment-modal");
-  const caixaQrCode = document.querySelector("#payment-qrcode");
-  const totalElemento = document.querySelector("#payment-total");
-
-  if (!modal || !caixaQrCode || !totalElemento) {
-    alert("Erro: estrutura do pagamento não encontrada no HTML.");
-    return;
-  }
-
-  caixaQrCode.innerHTML = "";
-  totalElemento.textContent = formatarDinheiro(pedido.total);
-
-  const textoQr = gerarTextoPagamento(pedido);
-
-  if (typeof QRCode !== "undefined") {
-    new QRCode(caixaQrCode, {
-      text: textoQr,
-      width: 200,
-      height: 200
-    });
-  } else {
-    const imagemQr = document.createElement("img");
-
-    imagemQr.src =
-      "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" +
-      encodeURIComponent(textoQr);
-
-    imagemQr.alt = "QR Code de pagamento";
-
-    caixaQrCode.appendChild(imagemQr);
-  }
-
-  fecharCarrinho();
-
-  modal.classList.add("active");
-}
-
-function fecharModalPagamento() {
-  const modal = document.querySelector("#payment-modal");
-
-  if (!modal) return;
-
-  modal.classList.remove("active");
-}
-
-function gerarTextoPagamento(pedido) {
-  const itensTexto = pedido.itens
-    .map((item) => {
-      return `${item.quantidade}x ${item.nome} - ${formatarDinheiro(item.subtotal)}`;
-    })
-    .join(" | ");
-
-  return (
-    `PEDRINHO FARMÁCIAS\n` +
-    `Cliente: ${pedido.cliente.nome}\n` +
-    `Total: ${formatarDinheiro(pedido.total)}\n` +
-    `Itens: ${itensTexto}`
-  );
-}
-
-function confirmarPagamento() {
-  if (!pedidoPagamentoPendente) {
-    alert("Nenhum pagamento pendente.");
-    return;
-  }
-
-  registrarVendaAdmin(pedidoPagamentoPendente);
-
-  pedidoPagamentoPendente.itens.forEach((item) => {
-    diminuirEstoque(item.nome, item.quantidade);
-  });
-
-  carrinho = [];
-
-  salvarCarrinho();
-
-  renderizarCarrinho();
-  renderizarBadgesEstoque();
-  renderizarTabelaEstoque();
-  renderizarPainelAdmin();
-
-  adicionarLogAdmin(
-    "PAGAMENTO_CONFIRMADO",
-    "Pagamento confirmado via QR Code.",
-    pedidoPagamentoPendente
-  );
-
-  pedidoPagamentoPendente = null;
-
-  fecharModalPagamento();
-
-  alert("Pagamento confirmado com sucesso!");
-}
-
-/* ===============================
-   PAGAMENTO - PÁGINA pagamento.html
-================================ */
-
 const LINK_QR_CODE_PAGAMENTO = "https://youtu.be/kAOZ14Tjg7A?si=F4XzVReQ7rPesPRp&t=56";
 
 function montarPedidoDoCarrinho() {
-  const usuarioLogado = obterUsuarioLogado();
+  const usuario = obterUsuarioLogado();
   const total = obterTotalCarrinho();
 
   return {
-    cliente: usuarioLogado
+    cliente: usuario
       ? {
-          nome: usuarioLogado.nome,
-          email: usuarioLogado.email,
-          perfil: usuarioLogado.perfil || "usuario"
+          nome: usuario.nome,
+          email: usuario.email,
+          perfil: usuario.perfil || "usuario"
         }
       : {
           nome: "Cliente não identificado",
@@ -787,15 +522,13 @@ function montarPedidoDoCarrinho() {
           perfil: "visitante"
         },
 
-    itens: carrinho.map((item) => {
-      return {
-        nome: item.nome,
-        preco: Number(item.preco),
-        imagem: item.imagem,
-        quantidade: Number(item.quantidade),
-        subtotal: Number(item.preco) * Number(item.quantidade)
-      };
-    }),
+    itens: carrinho.map((item) => ({
+      nome: item.nome,
+      preco: Number(item.preco),
+      imagem: item.imagem,
+      quantidade: Number(item.quantidade),
+      subtotal: Number(item.preco) * Number(item.quantidade)
+    })),
 
     total: total,
     totalBruto: total,
@@ -830,26 +563,12 @@ function iniciarPagamento() {
 }
 
 function obterPedidoPendentePagamento() {
-  let pedido = obterStorage("pedrinhoPedidoPendente", null);
-
-  if (pedido && pedido.itens && pedido.itens.length) {
-    return pedido;
-  }
-
-  if (carrinho && carrinho.length) {
-    pedido = montarPedidoDoCarrinho();
-    salvarStorage("pedrinhoPedidoPendente", pedido);
-    return pedido;
-  }
-
-  return null;
+  return obterStorage("pedrinhoPedidoPendente", null);
 }
 
 function gerarTextoPagamento(pedido) {
   const itensTexto = pedido.itens
-    .map((item) => {
-      return `${item.quantidade}x ${item.nome} - ${formatarDinheiro(item.subtotal)}`;
-    })
+    .map((item) => `${item.quantidade}x ${item.nome} - ${formatarDinheiro(item.subtotal)}`)
     .join(" | ");
 
   return (
@@ -861,7 +580,7 @@ function gerarTextoPagamento(pedido) {
   );
 }
 
-function gerarQrCodeNaTela(elemento, texto) {
+function gerarQrCode(elemento, texto) {
   if (!elemento) return;
 
   elemento.innerHTML = "";
@@ -876,41 +595,32 @@ function gerarQrCodeNaTela(elemento, texto) {
     return;
   }
 
-  const imagemQr = document.createElement("img");
+  const img = document.createElement("img");
 
-  imagemQr.src =
+  img.src =
     "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" +
     encodeURIComponent(texto);
 
-  imagemQr.alt = "QR Code de pagamento";
+  img.alt = "QR Code";
 
-  elemento.appendChild(imagemQr);
+  elemento.appendChild(img);
 }
 
 function renderizarPaginaPagamento() {
   const listaItens = document.querySelector("#payment-order-items");
   const totalResumo = document.querySelector("#payment-page-total");
   const totalQr = document.querySelector("#payment-page-total-qr");
-  const caixaQrCode = document.querySelector("#payment-page-qrcode");
+  const caixaQr = document.querySelector("#payment-page-qrcode");
 
-  if (!listaItens || !totalResumo || !totalQr || !caixaQrCode) {
-    return;
-  }
+  if (!listaItens || !totalResumo || !totalQr || !caixaQr) return;
 
   const pedido = obterPedidoPendentePagamento();
 
   if (!pedido || !pedido.itens || !pedido.itens.length) {
-    listaItens.innerHTML = `
-      <p class="empty-cart">
-        Nenhum pedido encontrado. Volte para a loja e adicione itens ao carrinho.
-      </p>
-    `;
-
+    listaItens.innerHTML = `<p class="empty-cart">Nenhum pedido encontrado.</p>`;
     totalResumo.textContent = "R$ 0,00";
     totalQr.textContent = "R$ 0,00";
-
-    gerarQrCodeNaTela(caixaQrCode, LINK_QR_CODE_PAGAMENTO);
-
+    gerarQrCode(caixaQr, LINK_QR_CODE_PAGAMENTO);
     return;
   }
 
@@ -939,7 +649,7 @@ function renderizarPaginaPagamento() {
   totalResumo.textContent = formatarDinheiro(pedido.total);
   totalQr.textContent = formatarDinheiro(pedido.total);
 
-  gerarQrCodeNaTela(caixaQrCode, LINK_QR_CODE_PAGAMENTO);
+  gerarQrCode(caixaQr, LINK_QR_CODE_PAGAMENTO);
 }
 
 function confirmarPagamentoPagina() {
@@ -968,20 +678,13 @@ function confirmarPagamentoPagina() {
     pedido
   );
 
-  renderizarCarrinho();
-  renderizarBadgesEstoque();
-  renderizarTabelaEstoque();
-  renderizarPainelAdmin();
-
   alert("Pagamento confirmado com sucesso!");
 
-  window.location.href = "index.html";
+  window.location.href = "admin.html";
 }
 
 function cancelarPagamentoPagina() {
-  const confirmar = confirm("Deseja cancelar este pagamento?");
-
-  if (!confirmar) return;
+  if (!confirm("Deseja cancelar este pagamento?")) return;
 
   localStorage.removeItem("pedrinhoPedidoPendente");
 
@@ -990,8 +693,6 @@ function cancelarPagamentoPagina() {
   window.location.href = "index.html";
 }
 
-/* Modal antigo mantido apenas para compatibilidade */
-
 function abrirModalPagamento(pedido) {
   salvarStorage("pedrinhoPedidoPendente", pedido);
   window.location.href = "pagamento.html";
@@ -999,15 +700,147 @@ function abrirModalPagamento(pedido) {
 
 function fecharModalPagamento() {
   const modal = document.querySelector("#payment-modal");
-
-  if (!modal) return;
-
-  modal.classList.remove("active");
+  if (modal) modal.classList.remove("active");
 }
 
 function confirmarPagamento() {
   confirmarPagamentoPagina();
-};
+}
+
+/* ===============================
+   AGENDAMENTO
+================================ */
+
+function agendarServico(nome, preco, imagem) {
+  const servico = {
+    nome: nome,
+    preco: Number(preco),
+    imagem: imagem,
+    criadoEm: new Date().toLocaleString("pt-BR")
+  };
+
+  salvarStorage("pedrinhoServicoAgendamento", servico);
+
+  window.location.href = "agendamento.html";
+}
+
+function obterServicoAgendamento() {
+  return obterStorage("pedrinhoServicoAgendamento", null);
+}
+
+function obterAgendamentos() {
+  const lista = obterStorage("pedrinhoAgendamentos", []);
+  return Array.isArray(lista) ? lista : [];
+}
+
+function salvarAgendamentos(lista) {
+  salvarStorage("pedrinhoAgendamentos", lista);
+}
+
+function renderizarPaginaAgendamento() {
+  const caixaServico = document.querySelector("#agendamento-servico");
+  const formulario = document.querySelector("#agendamento-form");
+
+  if (!caixaServico || !formulario) return;
+
+  const servico = obterServicoAgendamento();
+  const usuario = obterUsuarioLogado();
+
+  if (usuario) {
+    const nomeInput = document.querySelector("#agendamento-nome");
+    const emailInput = document.querySelector("#agendamento-email");
+
+    if (nomeInput) nomeInput.value = usuario.nome || "";
+    if (emailInput) emailInput.value = usuario.email || "";
+  }
+
+  if (!servico) {
+    caixaServico.innerHTML = `
+      <p class="empty-cart">
+        Nenhum serviço selecionado. Volte para a página de serviços.
+      </p>
+    `;
+    return;
+  }
+
+  caixaServico.innerHTML = `
+    <div class="agendamento-servico-card">
+      <img src="${servico.imagem}" alt="${servico.nome}" />
+
+      <div>
+        <h3>${servico.nome}</h3>
+
+        <p>
+          Serviço selecionado para agendamento na Pedrinho Farmácias.
+          Preencha seus dados para confirmar.
+        </p>
+
+        <span class="agendamento-preco">
+          ${servico.preco > 0 ? formatarDinheiro(servico.preco) : "Grátis"}
+        </span>
+      </div>
+    </div>
+  `;
+
+  formulario.addEventListener("submit", (evento) => {
+    evento.preventDefault();
+
+    const nome = document.querySelector("#agendamento-nome")?.value.trim();
+    const email = document.querySelector("#agendamento-email")?.value.trim();
+    const telefone = document.querySelector("#agendamento-telefone")?.value.trim();
+    const data = document.querySelector("#agendamento-data")?.value;
+    const hora = document.querySelector("#agendamento-hora")?.value;
+    const observacao = document.querySelector("#agendamento-observacao")?.value.trim();
+
+    if (!nome || !email || !telefone || !data || !hora) {
+      alert("Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    const agendamento = {
+      id: Date.now(),
+      servico: servico.nome,
+      preco: servico.preco,
+      imagem: servico.imagem,
+      cliente: {
+        nome: nome,
+        email: email,
+        telefone: telefone
+      },
+      data: data,
+      hora: hora,
+      observacao: observacao || "Nenhuma observação",
+      status: "Agendado",
+      criadoEm: new Date().toLocaleString("pt-BR")
+    };
+
+    const agendamentos = obterAgendamentos();
+
+    agendamentos.push(agendamento);
+
+    salvarAgendamentos(agendamentos);
+
+    adicionarLogAdmin(
+      "AGENDAMENTO_CRIADO",
+      `Agendamento criado para ${servico.nome}.`,
+      agendamento
+    );
+
+    localStorage.removeItem("pedrinhoServicoAgendamento");
+
+    alert("Agendamento confirmado com sucesso!");
+
+    window.location.href = "servicos.html";
+  });
+}
+
+function cancelarAgendamento() {
+  localStorage.removeItem("pedrinhoServicoAgendamento");
+
+  alert("Agendamento cancelado.");
+
+  window.location.href = "servicos.html";
+}
 
 /* ===============================
    FILTROS
@@ -1015,59 +848,52 @@ function confirmarPagamento() {
 
 function configurarFiltros() {
   const campoBusca = document.querySelector("#product-search");
-  const cardsProdutos = document.querySelectorAll(".produto-card, .product-card");
-  const botoesFiltro = document.querySelectorAll(".filter-btn");
+  const cards = document.querySelectorAll(".produto-card, .product-card");
+  const botoes = document.querySelectorAll(".filter-btn");
 
   let filtroAtivo = "all";
 
-  function filtrarProdutos() {
-    const termoBusca = campoBusca ? normalizarTexto(campoBusca.value) : "";
+  function filtrar() {
+    const termo = campoBusca ? normalizarTexto(campoBusca.value) : "";
 
-    cardsProdutos.forEach((card) => {
+    cards.forEach((card) => {
       const nome = normalizarTexto(card.dataset.name);
       const categoria = card.dataset.category;
-
-      const combinaBusca = nome.includes(termoBusca);
+      const combinaBusca = nome.includes(termo);
       const combinaFiltro = filtroAtivo === "all" || categoria === filtroAtivo;
 
-      card.style.display = combinaBusca && combinaFiltro ? "block" : "none";
+      card.style.display = combinaBusca && combinaFiltro ? "" : "none";
     });
   }
 
   if (campoBusca) {
-    campoBusca.addEventListener("input", filtrarProdutos);
+    campoBusca.addEventListener("input", filtrar);
   }
 
-  botoesFiltro.forEach((botao) => {
+  botoes.forEach((botao) => {
     botao.addEventListener("click", () => {
-      botoesFiltro.forEach((btn) => {
-        btn.classList.remove("active");
-      });
-
+      botoes.forEach((btn) => btn.classList.remove("active"));
       botao.classList.add("active");
       filtroAtivo = botao.dataset.filter || "all";
-
-      filtrarProdutos();
+      filtrar();
     });
   });
 }
 
 /* ===============================
-   USUÁRIOS E LOGIN
+   LOGIN
 ================================ */
 
 function converterUsuariosAntigos(lista) {
   if (!Array.isArray(lista)) return [];
 
   return lista
-    .map((usuario) => {
-      return {
-        nome: usuario.nome || usuario.name,
-        email: usuario.email,
-        senha: usuario.senha || usuario.password,
-        perfil: usuario.perfil || usuario.role || "usuario"
-      };
-    })
+    .map((usuario) => ({
+      nome: usuario.nome || usuario.name,
+      email: usuario.email,
+      senha: usuario.senha || usuario.password,
+      perfil: usuario.perfil || usuario.role || "usuario"
+    }))
     .filter((usuario) => usuario.email);
 }
 
@@ -1098,11 +924,9 @@ function definirUsuarioLogado(usuario) {
 function iniciarAdministradorPadrao() {
   const usuarios = obterUsuarios();
 
-  const adminExiste = usuarios.some((usuario) => {
-    return usuario.email === "admin@pedrinho.com";
-  });
+  const existeAdmin = usuarios.some((usuario) => usuario.email === "admin@pedrinho.com");
 
-  if (!adminExiste) {
+  if (!existeAdmin) {
     usuarios.push({
       nome: "Administrador",
       email: "admin@pedrinho.com",
@@ -1115,109 +939,88 @@ function iniciarAdministradorPadrao() {
 }
 
 function verificarSeAdmin() {
-  const usuarioLogado = obterUsuarioLogado();
-
-  return usuarioLogado && usuarioLogado.perfil === "admin";
+  const usuario = obterUsuarioLogado();
+  return usuario && usuario.perfil === "admin";
 }
 
 function atualizarPermissoesNavbar() {
-  const usuarioLogado = obterUsuarioLogado();
+  const usuario = obterUsuarioLogado();
 
-  document.querySelectorAll(".admin-only").forEach((elemento) => {
-    elemento.classList.toggle("hidden", !(usuarioLogado && usuarioLogado.perfil === "admin"));
+  document.querySelectorAll(".admin-only").forEach((el) => {
+    el.classList.toggle("hidden", !(usuario && usuario.perfil === "admin"));
   });
 
-  document.querySelectorAll(".user-only").forEach((elemento) => {
-    elemento.classList.toggle("hidden", !usuarioLogado);
+  document.querySelectorAll(".user-only").forEach((el) => {
+    el.classList.toggle("hidden", !usuario);
   });
 
-  document.querySelectorAll(".guest-only").forEach((elemento) => {
-    elemento.classList.toggle("hidden", !!usuarioLogado);
+  document.querySelectorAll(".guest-only").forEach((el) => {
+    el.classList.toggle("hidden", !!usuario);
   });
 
-  document.querySelectorAll(".user-name").forEach((elemento) => {
-    if (!usuarioLogado) {
-      elemento.textContent = "";
+  document.querySelectorAll(".user-name").forEach((el) => {
+    if (!usuario) {
+      el.textContent = "";
       return;
     }
 
-    elemento.textContent =
-      usuarioLogado.perfil === "admin"
-        ? `Admin: ${usuarioLogado.nome}`
-        : `Olá, ${usuarioLogado.nome}`;
+    el.textContent =
+      usuario.perfil === "admin"
+        ? `Admin: ${usuario.nome}`
+        : `Olá, ${usuario.nome}`;
   });
 }
 
 function protegerPaginasAdmin() {
   const pagina = window.location.pathname.toLowerCase();
 
-  const paginaProtegida =
+  const protegida =
     pagina.includes("admin.html") ||
     pagina.includes("estoque.html");
 
-  if (paginaProtegida && !verificarSeAdmin()) {
+  if (protegida && !verificarSeAdmin()) {
     alert("Acesso negado. Apenas administradores podem acessar essa área.");
     window.location.href = "login.html";
   }
 }
 
-function atualizarAbasLogin(abaAtiva) {
-  const botoes = document.querySelectorAll(".tab-button");
-
-  botoes.forEach((botao) => {
-    botao.classList.remove("active");
-  });
-
-  if (abaAtiva === "login" && botoes[0]) {
-    botoes[0].classList.add("active");
-  }
-
-  if (abaAtiva === "cadastro" && botoes[1]) {
-    botoes[1].classList.add("active");
-  }
-}
-
 function mostrarCadastro() {
-  const formularioLogin = document.querySelector("#login-form");
-  const formularioCadastro = document.querySelector("#register-form");
-  const painelUsuario = document.querySelector("#user-panel");
+  const login = document.querySelector("#login-form");
+  const cadastro = document.querySelector("#register-form");
+  const painel = document.querySelector("#user-panel");
 
-  if (!formularioLogin || !formularioCadastro || !painelUsuario) return;
+  if (!login || !cadastro || !painel) return;
 
-  formularioLogin.classList.add("hidden");
-  formularioCadastro.classList.remove("hidden");
-  painelUsuario.classList.add("hidden");
-
-  atualizarAbasLogin("cadastro");
+  login.classList.add("hidden");
+  cadastro.classList.remove("hidden");
+  painel.classList.add("hidden");
 }
 
 function mostrarLogin() {
-  const formularioLogin = document.querySelector("#login-form");
-  const formularioCadastro = document.querySelector("#register-form");
-  const painelUsuario = document.querySelector("#user-panel");
+  const login = document.querySelector("#login-form");
+  const cadastro = document.querySelector("#register-form");
+  const painel = document.querySelector("#user-panel");
 
-  if (!formularioLogin || !formularioCadastro || !painelUsuario) return;
+  if (!login || !cadastro || !painel) return;
 
-  formularioCadastro.classList.add("hidden");
-  formularioLogin.classList.remove("hidden");
-  painelUsuario.classList.add("hidden");
-
-  atualizarAbasLogin("login");
+  cadastro.classList.add("hidden");
+  login.classList.remove("hidden");
+  painel.classList.add("hidden");
 }
 
 function mostrarPainelUsuario(usuario) {
-  const formularioLogin = document.querySelector("#login-form");
-  const formularioCadastro = document.querySelector("#register-form");
-  const painelUsuario = document.querySelector("#user-panel");
-  const mensagemUsuario = document.querySelector("#user-message");
+  const login = document.querySelector("#login-form");
+  const cadastro = document.querySelector("#register-form");
+  const painel = document.querySelector("#user-panel");
+  const mensagem = document.querySelector("#user-message");
 
-  if (!formularioLogin || !formularioCadastro || !painelUsuario || !mensagemUsuario) return;
+  if (!login || !cadastro || !painel || !mensagem) return;
 
-  formularioLogin.classList.add("hidden");
-  formularioCadastro.classList.add("hidden");
-  painelUsuario.classList.remove("hidden");
+  login.classList.add("hidden");
+  cadastro.classList.add("hidden");
+  painel.classList.remove("hidden");
 
-  mensagemUsuario.textContent =
+  mensagem.textContent =
     `Bem-vindo(a), ${usuario.nome}. Você está logado como ${
       usuario.perfil === "admin" ? "Administrador" : "Usuário"
     }. E-mail: ${usuario.email}.`;
@@ -1236,18 +1039,15 @@ function sairUsuario() {
 
   if (pagina.includes("admin.html") || pagina.includes("estoque.html")) {
     window.location.href = "login.html";
-    return;
   }
-
-  mostrarLogin();
 }
 
 function configurarFormulariosLogin() {
-  const formularioLogin = document.querySelector("#login-form");
-  const formularioCadastro = document.querySelector("#register-form");
+  const login = document.querySelector("#login-form");
+  const cadastro = document.querySelector("#register-form");
 
-  if (formularioCadastro) {
-    formularioCadastro.addEventListener("submit", (evento) => {
+  if (cadastro) {
+    cadastro.addEventListener("submit", (evento) => {
       evento.preventDefault();
 
       const nome = document.querySelector("#register-name")?.value.trim();
@@ -1259,63 +1059,47 @@ function configurarFormulariosLogin() {
         return;
       }
 
-      if (senha.length < 4) {
-        alert("A senha precisa ter pelo menos 4 caracteres.");
-        return;
-      }
-
       const usuarios = obterUsuarios();
 
-      const usuarioExiste = usuarios.some((usuario) => {
-        return usuario.email === email;
-      });
-
-      if (usuarioExiste) {
+      if (usuarios.some((usuario) => usuario.email === email)) {
         alert("Este e-mail já está cadastrado.");
         return;
       }
 
-      const novoUsuario = {
-        nome,
-        email,
-        senha,
+      const novo = {
+        nome: nome,
+        email: email,
+        senha: senha,
         perfil: "usuario"
       };
 
-      usuarios.push(novoUsuario);
+      usuarios.push(novo);
       salvarUsuarios(usuarios);
 
       definirUsuarioLogado({
-        nome: novoUsuario.nome,
-        email: novoUsuario.email,
-        perfil: novoUsuario.perfil
+        nome: novo.nome,
+        email: novo.email,
+        perfil: novo.perfil
       });
 
-      adicionarLogAdmin("USUARIO_CRIADO", `Novo usuário cadastrado: ${novoUsuario.email}`, {
-        nome: novoUsuario.nome,
-        email: novoUsuario.email,
-        perfil: novoUsuario.perfil
-      });
+      adicionarLogAdmin("USUARIO_CRIADO", `Novo usuário cadastrado: ${email}`, novo);
 
       alert("Conta criada com sucesso!");
 
-      formularioCadastro.reset();
+      cadastro.reset();
 
-      mostrarPainelUsuario(novoUsuario);
-      atualizarPermissoesNavbar();
+      mostrarPainelUsuario(novo);
     });
   }
 
-  if (formularioLogin) {
-    formularioLogin.addEventListener("submit", (evento) => {
+  if (login) {
+    login.addEventListener("submit", (evento) => {
       evento.preventDefault();
 
       const email = document.querySelector("#login-email")?.value.trim().toLowerCase();
       const senha = document.querySelector("#login-password")?.value.trim();
 
-      const usuarios = obterUsuarios();
-
-      const usuario = usuarios.find((item) => {
+      const usuario = obterUsuarios().find((item) => {
         return item.email === email && item.senha === senha;
       });
 
@@ -1324,25 +1108,22 @@ function configurarFormulariosLogin() {
         return;
       }
 
-      const usuarioLogado = {
+      definirUsuarioLogado({
         nome: usuario.nome,
         email: usuario.email,
         perfil: usuario.perfil || "usuario"
-      };
+      });
 
-      definirUsuarioLogado(usuarioLogado);
-
-      adicionarLogAdmin("LOGIN_REALIZADO", `Login realizado: ${usuarioLogado.email}`, usuarioLogado);
+      adicionarLogAdmin("LOGIN_REALIZADO", `Login realizado: ${usuario.email}`, usuario);
 
       alert("Login realizado com sucesso!");
 
-      formularioLogin.reset();
+      login.reset();
 
-      mostrarPainelUsuario(usuarioLogado);
-      atualizarPermissoesNavbar();
-
-      if (usuarioLogado.perfil === "admin") {
+      if (usuario.perfil === "admin") {
         window.location.href = "admin.html";
+      } else {
+        mostrarPainelUsuario(usuario);
       }
     });
   }
@@ -1354,12 +1135,7 @@ function configurarFormulariosLogin() {
 
 function obterVendasAdmin() {
   const vendas = obterStorage("pedrinhoAdminSales", []);
-
-  if (!Array.isArray(vendas)) {
-    return [];
-  }
-
-  return vendas;
+  return Array.isArray(vendas) ? vendas : [];
 }
 
 function salvarVendasAdmin(vendas) {
@@ -1368,12 +1144,7 @@ function salvarVendasAdmin(vendas) {
 
 function obterNotasAdmin() {
   const notas = obterStorage("pedrinhoAdminInvoices", []);
-
-  if (!Array.isArray(notas)) {
-    return [];
-  }
-
-  return notas;
+  return Array.isArray(notas) ? notas : [];
 }
 
 function salvarNotasAdmin(notas) {
@@ -1382,12 +1153,7 @@ function salvarNotasAdmin(notas) {
 
 function obterLogsAdmin() {
   const logs = obterStorage("pedrinhoAdminLogs", []);
-
-  if (!Array.isArray(logs)) {
-    return [];
-  }
-
-  return logs;
+  return Array.isArray(logs) ? logs : [];
 }
 
 function salvarLogsAdmin(logs) {
@@ -1395,10 +1161,7 @@ function salvarLogsAdmin(logs) {
 }
 
 function gerarNumeroNota() {
-  const notas = obterNotasAdmin();
-  const proximoNumero = notas.length + 1;
-
-  return String(proximoNumero).padStart(4, "0");
+  return String(obterNotasAdmin().length + 1).padStart(4, "0");
 }
 
 function adicionarLogAdmin(tipo, mensagem, dados = null) {
@@ -1406,64 +1169,59 @@ function adicionarLogAdmin(tipo, mensagem, dados = null) {
 
   logs.unshift({
     id: Date.now(),
-    tipo,
-    mensagem,
-    dados,
+    tipo: tipo,
+    mensagem: mensagem,
+    dados: dados,
     data: new Date().toLocaleString("pt-BR")
   });
 
   salvarLogsAdmin(logs);
 }
 
-function registrarVendaAdmin(dadosPedido) {
-  if (!dadosPedido || !dadosPedido.itens || !dadosPedido.itens.length) {
-    console.error("Pedido inválido para registrar venda:", dadosPedido);
-    return;
-  }
+function registrarVendaAdmin(pedido) {
+  if (!pedido || !pedido.itens || !pedido.itens.length) return;
 
   const vendas = obterVendasAdmin();
   const notas = obterNotasAdmin();
   const numeroNota = gerarNumeroNota();
 
-  const itensLimpos = dadosPedido.itens.map((item) => {
-    return {
-      nome: item.nome,
-      preco: Number(item.preco || 0),
-      quantidade: Number(item.quantidade || 0),
-      subtotal: Number(item.subtotal || Number(item.preco || 0) * Number(item.quantidade || 0))
-    };
-  });
+  const itens = pedido.itens.map((item) => ({
+    nome: item.nome,
+    preco: Number(item.preco || 0),
+    quantidade: Number(item.quantidade || 0),
+    subtotal: Number(item.subtotal || Number(item.preco || 0) * Number(item.quantidade || 0))
+  }));
 
   const total = Number(
-    dadosPedido.total ||
-    itensLimpos.reduce((soma, item) => soma + item.subtotal, 0)
+    pedido.total ||
+    itens.reduce((soma, item) => soma + item.subtotal, 0)
   );
 
-  const cliente = dadosPedido.cliente || {
+  const cliente = pedido.cliente || {
     nome: "Cliente não identificado",
     email: "Não informado",
     perfil: "visitante"
   };
 
-  const dataVenda = new Date().toLocaleString("pt-BR");
+  const data = new Date().toLocaleString("pt-BR");
 
   const venda = {
     id: Date.now(),
     numeroNota: numeroNota,
     cliente: cliente,
-    itens: itensLimpos,
+    itens: itens,
     total: total,
-    totalBruto: Number(dadosPedido.totalBruto || total),
-    data: dataVenda
+    totalBruto: Number(pedido.totalBruto || total),
+    data: data
   };
 
   const nota = {
     numero: numeroNota,
     cliente: cliente,
-    itens: itensLimpos,
+    itens: itens,
     total: total,
-    totalBruto: Number(dadosPedido.totalBruto || total),
-    data: dataVenda
+    totalBruto: Number(pedido.totalBruto || total),
+    data: data
   };
 
   vendas.push(venda);
@@ -1473,16 +1231,13 @@ function registrarVendaAdmin(dadosPedido) {
   salvarNotasAdmin(notas);
 
   adicionarLogAdmin("VENDA_FINALIZADA", `Venda finalizada com NF ${numeroNota}.`, venda);
-
-  console.log("Venda registrada no admin:", venda);
 }
 
 function obterRankingProdutos() {
-  const vendas = obterVendasAdmin();
   const ranking = {};
 
-  vendas.forEach((venda) => {
-    if (!venda.itens || !Array.isArray(venda.itens)) return;
+  obterVendasAdmin().forEach((venda) => {
+    if (!Array.isArray(venda.itens)) return;
 
     venda.itens.forEach((item) => {
       if (!ranking[item.nome]) {
@@ -1498,125 +1253,177 @@ function obterRankingProdutos() {
     });
   });
 
-  return Object.values(ranking).sort((a, b) => {
-    return b.quantidade - a.quantidade;
-  });
+  return Object.values(ranking).sort((a, b) => b.quantidade - a.quantidade);
+}
+
+function obterAgendamentosAdmin() {
+  const agendamentos = obterStorage("pedrinhoAgendamentos", []);
+  return Array.isArray(agendamentos) ? agendamentos : [];
+}
+
+function formatarDataAgendamento(data) {
+  if (!data) return "Não informada";
+
+  const partes = data.split("-");
+
+  if (partes.length !== 3) return data;
+
+  return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+function renderizarAgendamentosAdmin() {
+  const tabela = document.querySelector("#admin-appointments-table");
+
+  if (!tabela) return;
+
+  const agendamentos = obterAgendamentosAdmin();
+
+  tabela.innerHTML = "";
+
+  if (!agendamentos.length) {
+    tabela.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align:center;color:#999;padding:2rem">
+          Nenhum agendamento registrado.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  agendamentos
+    .slice()
+    .reverse()
+    .forEach((agendamento) => {
+      const linha = document.createElement("tr");
+
+      linha.innerHTML = `
+        <td>
+          <strong>${agendamento.servico || "Serviço não informado"}</strong>
+          <br>
+          <small>${Number(agendamento.preco || 0) > 0 ? formatarDinheiro(agendamento.preco) : "Grátis"}</small>
+        </td>
+
+        <td>
+          ${agendamento.cliente?.nome || "Cliente não informado"}
+          <br>
+          <small>${agendamento.cliente?.email || "E-mail não informado"}</small>
+        </td>
+
+        <td>
+          ${agendamento.cliente?.telefone || "Telefone não informado"}
+        </td>
+
+        <td>
+          ${formatarDataAgendamento(agendamento.data)}
+        </td>
+
+        <td>
+          ${agendamento.hora || "Não informado"}
+        </td>
+
+        <td>
+          <span class="status-ok">
+            ${agendamento.status || "Agendado"}
+          </span>
+        </td>
+      `;
+
+      tabela.appendChild(linha);
+    });
+}
+
+function limparAgendamentosAdmin() {
+  if (!confirm("Deseja apagar todos os agendamentos?")) return;
+
+  localStorage.removeItem("pedrinhoAgendamentos");
+
+  adicionarLogAdmin(
+    "AGENDAMENTOS_LIMPOS",
+    "Todos os agendamentos foram apagados pelo administrador.",
+    null
+  );
+
+  alert("Agendamentos apagados com sucesso.");
+
+  renderizarAgendamentosAdmin();
+  renderizarPainelAdmin();
 }
 
 function renderizarPainelAdmin() {
-  const totalVendasElemento = document.querySelector("#admin-total-sales");
-  const totalBrutoElemento = document.querySelector("#admin-gross-sales");
-  const produtoMaisVendidoElemento = document.querySelector("#admin-top-product");
-  const quantidadeProdutoMaisVendidoElemento = document.querySelector("#admin-top-product-qty");
-  const quantidadeNotasElemento = document.querySelector("#admin-invoice-count");
-  const graficoElemento = document.querySelector("#admin-products-chart");
-  const tabelaNotas = document.querySelector("#admin-invoices-table");
-  const logsElemento = document.querySelector("#admin-raw-logs");
+  const totalVendas = document.querySelector("#admin-total-sales");
+  const totalBruto = document.querySelector("#admin-gross-sales");
+  const produtoTop = document.querySelector("#admin-top-product");
+  const produtoQtd = document.querySelector("#admin-top-product-qty");
+  const notasQtd = document.querySelector("#admin-invoice-count");
+  const grafico = document.querySelector("#admin-products-chart");
+  const tabela = document.querySelector("#admin-invoices-table");
+  const logsEl = document.querySelector("#admin-raw-logs");
 
   const existePainel =
-    totalVendasElemento ||
-    totalBrutoElemento ||
-    produtoMaisVendidoElemento ||
-    quantidadeProdutoMaisVendidoElemento ||
-    quantidadeNotasElemento ||
-    graficoElemento ||
-    tabelaNotas ||
-    logsElemento;
+    totalVendas ||
+    totalBruto ||
+    produtoTop ||
+    produtoQtd ||
+    notasQtd ||
+    grafico ||
+    tabela ||
+    logsEl;
 
   if (!existePainel) return;
-
-  if (!verificarSeAdmin()) {
-    if (graficoElemento) {
-      graficoElemento.innerHTML = `
-        <p class="admin-empty">
-          Faça login como administrador para visualizar o painel.
-        </p>
-      `;
-    }
-
-    return;
-  }
 
   const vendas = obterVendasAdmin();
   const notas = obterNotasAdmin();
   const logs = obterLogsAdmin();
   const ranking = obterRankingProdutos();
 
-  const totalVendas = vendas.reduce((total, venda) => {
-    return total + Number(venda.total || 0);
-  }, 0);
+  const somaTotal = vendas.reduce((soma, venda) => soma + Number(venda.total || 0), 0);
+  const somaBruto = vendas.reduce((soma, venda) => soma + Number(venda.totalBruto || venda.total || 0), 0);
 
-  const totalBruto = vendas.reduce((total, venda) => {
-    return total + Number(venda.totalBruto || venda.total || 0);
-  }, 0);
+  if (totalVendas) totalVendas.textContent = formatarDinheiro(somaTotal);
+  if (totalBruto) totalBruto.textContent = formatarDinheiro(somaBruto);
+  if (produtoTop) produtoTop.textContent = ranking.length ? ranking[0].nome : "Nenhum";
 
-  if (totalVendasElemento) {
-    totalVendasElemento.textContent = formatarDinheiro(totalVendas);
-  }
-
-  if (totalBrutoElemento) {
-    totalBrutoElemento.textContent = formatarDinheiro(totalBruto);
-  }
-
-  if (produtoMaisVendidoElemento) {
-    produtoMaisVendidoElemento.textContent = ranking.length ? ranking[0].nome : "Nenhum";
-  }
-
-  if (quantidadeProdutoMaisVendidoElemento) {
-    quantidadeProdutoMaisVendidoElemento.textContent = ranking.length
+  if (produtoQtd) {
+    produtoQtd.textContent = ranking.length
       ? `${ranking[0].quantidade} unidades vendidas.`
       : "0 unidades vendidas.";
   }
 
-  if (quantidadeNotasElemento) {
-    quantidadeNotasElemento.textContent = notas.length;
-  }
+  if (notasQtd) notasQtd.textContent = notas.length;
 
-  if (graficoElemento) {
-    graficoElemento.innerHTML = "";
+  if (grafico) {
+    grafico.innerHTML = "";
 
     if (!ranking.length) {
-      graficoElemento.innerHTML = `
-        <p class="admin-empty">
-          Nenhuma venda registrada ainda.
-        </p>
-      `;
+      grafico.innerHTML = `<p class="admin-empty">Nenhuma venda registrada ainda.</p>`;
     } else {
-      const maiorQuantidade = ranking[0].quantidade || 1;
+      const maior = ranking[0].quantidade || 1;
 
       ranking.forEach((produto, indice) => {
-        const porcentagem = Math.max(
-          8,
-          Math.round((produto.quantidade / maiorQuantidade) * 100)
-        );
+        const porcentagem = Math.max(8, Math.round((produto.quantidade / maior) * 100));
 
         const linha = document.createElement("div");
         linha.className = "chart-row";
 
         linha.innerHTML = `
-          <div class="chart-label">
-            ${indice + 1}. ${produto.nome}
-          </div>
-
+          <div class="chart-label">${indice + 1}. ${produto.nome}</div>
           <div class="chart-bar-wrap">
-            <div class="chart-bar" style="width: ${porcentagem}%"></div>
+            <div class="chart-bar" style="width:${porcentagem}%"></div>
           </div>
-
-          <div class="chart-value">
-            ${produto.quantidade}
-          </div>
+          <div class="chart-value">${produto.quantidade}</div>
         `;
 
-        graficoElemento.appendChild(linha);
+        grafico.appendChild(linha);
       });
     }
   }
 
-  if (tabelaNotas) {
-    tabelaNotas.innerHTML = "";
+  if (tabela) {
+    tabela.innerHTML = "";
 
     if (!notas.length) {
-      tabelaNotas.innerHTML = `
+      tabela.innerHTML = `
         <tr>
           <td colspan="5" style="text-align:center;color:#999;padding:2rem">
             Nenhuma nota fiscal emitida.
@@ -1638,16 +1445,18 @@ function renderizarPainelAdmin() {
             <td>${nota.itens ? nota.itens.length : 0} item(ns)</td>
           `;
 
-          tabelaNotas.appendChild(linha);
+          tabela.appendChild(linha);
         });
     }
   }
 
-  if (logsElemento) {
-    logsElemento.textContent = logs.length
+  if (logsEl) {
+    logsEl.textContent = logs.length
       ? JSON.stringify(logs, null, 2)
       : "Nenhum log registrado.";
   }
+
+  renderizarAgendamentosAdmin();
 }
 
 function copiarLogsAdmin() {
@@ -1658,28 +1467,13 @@ function copiarLogsAdmin() {
     return;
   }
 
-  const texto = JSON.stringify(logs, null, 2);
-
-  navigator.clipboard.writeText(texto)
-    .then(() => {
-      alert("Logs copiados com sucesso!");
-    })
-    .catch(() => {
-      alert("Não foi possível copiar os logs.");
-    });
+  navigator.clipboard.writeText(JSON.stringify(logs, null, 2))
+    .then(() => alert("Logs copiados com sucesso!"))
+    .catch(() => alert("Não foi possível copiar os logs."));
 }
 
 function limparDadosAdmin() {
-  if (!verificarSeAdmin()) {
-    alert("Apenas administradores podem limpar os dados.");
-    return;
-  }
-
-  const confirmar = confirm(
-    "Deseja apagar vendas, notas fiscais e logs? Essa ação não pode ser desfeita."
-  );
-
-  if (!confirmar) return;
+  if (!confirm("Deseja apagar vendas, notas fiscais e logs?")) return;
 
   localStorage.removeItem("pedrinhoAdminSales");
   localStorage.removeItem("pedrinhoAdminInvoices");
@@ -1688,6 +1482,70 @@ function limparDadosAdmin() {
   alert("Dados administrativos apagados com sucesso.");
 
   renderizarPainelAdmin();
+}
+
+/* ===============================
+   CARROSSEL
+================================ */
+
+let slideAtual = 0;
+let intervaloCarrossel = null;
+
+function mostrarSlide(indice) {
+  const slides = document.querySelectorAll(".slide");
+  const bolinhas = document.querySelectorAll(".dot, .bolinhas span");
+
+  if (!slides.length) return;
+
+  slides.forEach((slide, i) => {
+    slide.classList.toggle("active", i === indice);
+  });
+
+  bolinhas.forEach((bolinha, i) => {
+    bolinha.classList.toggle("active", i === indice);
+  });
+
+  slideAtual = indice;
+}
+
+function proximoSlide() {
+  const slides = document.querySelectorAll(".slide");
+
+  if (!slides.length) return;
+
+  mostrarSlide((slideAtual + 1) % slides.length);
+}
+
+function iniciarCarrossel() {
+  const slides = document.querySelectorAll(".slide");
+
+  if (slides.length <= 1) return;
+
+  pararCarrossel();
+
+  intervaloCarrossel = setInterval(proximoSlide, 5500);
+}
+
+function pararCarrossel() {
+  if (intervaloCarrossel) {
+    clearInterval(intervaloCarrossel);
+    intervaloCarrossel = null;
+  }
+}
+
+function configurarCarrossel() {
+  const bolinhas = document.querySelectorAll(".dot, .bolinhas span");
+
+  bolinhas.forEach((bolinha, indice) => {
+    bolinha.addEventListener("click", () => {
+      pararCarrossel();
+      mostrarSlide(indice);
+      iniciarCarrossel();
+    });
+  });
+
+  mostrarSlide(0);
+  iniciarCarrossel();
 }
 
 /* ===============================
@@ -1702,10 +1560,10 @@ document.addEventListener("DOMContentLoaded", () => {
   configurarFiltros();
   configurarFormulariosLogin();
 
-  const usuarioLogado = obterUsuarioLogado();
+  const usuario = obterUsuarioLogado();
 
-  if (usuarioLogado && document.querySelector("#user-panel")) {
-    mostrarPainelUsuario(usuarioLogado);
+  if (usuario && document.querySelector("#user-panel")) {
+    mostrarPainelUsuario(usuario);
   }
 
   atualizarPermissoesNavbar();
@@ -1716,6 +1574,8 @@ document.addEventListener("DOMContentLoaded", () => {
   renderizarTabelaEstoque();
   renderizarPainelAdmin();
   renderizarPaginaPagamento();
+  renderizarPaginaAgendamento();
+  renderizarAgendamentosAdmin();
 });
 
 /* ===============================
@@ -1732,11 +1592,13 @@ window.limparCarrinho = limparCarrinho;
 
 window.finalizarPedido = finalizarPedido;
 window.iniciarPagamento = iniciarPagamento;
-window.abrirModalPagamento = abrirModalPagamento;
-window.fecharModalPagamento = fecharModalPagamento;
-window.confirmarPagamento = confirmarPagamento;
 window.confirmarPagamentoPagina = confirmarPagamentoPagina;
 window.cancelarPagamentoPagina = cancelarPagamentoPagina;
+window.confirmarPagamento = confirmarPagamento;
+window.fecharModalPagamento = fecharModalPagamento;
+
+window.agendarServico = agendarServico;
+window.cancelarAgendamento = cancelarAgendamento;
 
 window.mostrarLogin = mostrarLogin;
 window.mostrarCadastro = mostrarCadastro;
@@ -1747,8 +1609,8 @@ window.salvarEstoqueDoInput = salvarEstoqueDoInput;
 
 window.limparDadosAdmin = limparDadosAdmin;
 window.copiarLogsAdmin = copiarLogsAdmin;
-
-/* Compatibilidade com nomes antigos em inglês */
+window.limparAgendamentosAdmin = limparAgendamentosAdmin;
+window.renderizarAgendamentosAdmin = renderizarAgendamentosAdmin;
 
 window.openCart = abrirCarrinho;
 window.closeCart = fecharCarrinho;
@@ -1760,9 +1622,8 @@ window.clearCart = limparCarrinho;
 
 window.finishOrder = finalizarPedido;
 window.startPayment = iniciarPagamento;
-window.openPaymentModal = abrirModalPagamento;
-window.closePaymentModal = fecharModalPagamento;
 window.confirmPayment = confirmarPagamento;
+window.closePaymentModal = fecharModalPagamento;
 
 window.showLogin = mostrarLogin;
 window.showRegister = mostrarCadastro;
@@ -1773,11 +1634,3 @@ window.saveStockFromInput = salvarEstoqueDoInput;
 
 window.resetAdminData = limparDadosAdmin;
 window.copyAdminLogs = copiarLogsAdmin;
-window.finalizarPedido = finalizarPedido;
-window.iniciarPagamento = iniciarPagamento;
-window.renderizarPaginaPagamento = renderizarPaginaPagamento;
-window.confirmarPagamentoPagina = confirmarPagamentoPagina;
-window.cancelarPagamentoPagina = cancelarPagamentoPagina;
-
-window.finishOrder = finalizarPedido;
-window.startPayment = iniciarPagamento;

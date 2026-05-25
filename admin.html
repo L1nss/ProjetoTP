@@ -115,6 +115,40 @@
     </div>
   </div>
 
+  <section class="admin-panel-section">
+  <div class="admin-section-title">
+    <div>
+      <h2>Agendamentos de clientes</h2>
+      <p>Lista de serviços agendados pelos clientes.</p>
+    </div>
+
+    <button type="button" class="admin-secondary-button" onclick="limparAgendamentosAdmin()">
+      Limpar agendamentos
+    </button>
+  </div>
+
+  <div class="admin-table-wrapper">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Serviço</th>
+          <th>Cliente</th>
+          <th>Contato</th>
+          <th>Data</th>
+          <th>Horário</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody id="admin-appointments-table">
+        <tr>
+          <td colspan="6">Nenhum agendamento registrado.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
 </main>
 
 <footer class="rodape">

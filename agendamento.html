@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Agendamento | Pedrinho Farmácias</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+<header class="topo">
+  <div class="logo">
+    <a href="index.html">
+      <strong>Pedrinho Farmácias</strong>
+    </a>
+  </div>
+
+  <nav class="acoes-topo">
+    <a href="servicos.html" class="botao-voltar">Voltar aos serviços</a>
+
+    <a href="login.html" class="login-imagem guest-only">
+      <img src="icon.jpg" alt="Entrar" />
+    </a>
+
+    <span class="user-name user-only hidden"></span>
+
+    <button class="botao-sair user-only hidden" type="button" onclick="sairUsuario()">
+      Sair
+    </button>
+  </nav>
+</header>
+
+<main class="container agendamento-page">
+
+  <section class="agendamento-hero">
+    <div>
+      <span>Agendamento online</span>
+
+      <h1>Finalize o agendamento do seu serviço</h1>
+
+      <p>
+        Confira o serviço escolhido, informe seus dados e selecione uma data
+        para atendimento na Pedrinho Farmácias.
+      </p>
+    </div>
+
+    <div class="agendamento-status-card">
+      <strong>Atendimento</strong>
+      <p>Rápido, simples e organizado.</p>
+    </div>
+  </section>
+
+  <section class="agendamento-grid">
+
+    <section class="agendamento-card">
+      <div class="agendamento-card-title">
+        <h2>Serviço selecionado</h2>
+        <p>Confira os detalhes antes de confirmar.</p>
+      </div>
+
+      <div id="agendamento-servico" class="agendamento-servico">
+        <p class="empty-cart">Nenhum serviço selecionado.</p>
+      </div>
+    </section>
+
+    <section class="agendamento-card">
+      <div class="agendamento-card-title">
+        <h2>Dados do agendamento</h2>
+        <p>Preencha as informações abaixo.</p>
+      </div>
+
+      <form id="agendamento-form" class="agendamento-form">
+
+        <label for="agendamento-nome">Nome completo</label>
+        <input
+          type="text"
+          id="agendamento-nome"
+          placeholder="Digite seu nome"
+          required
+        />
+
+        <label for="agendamento-email">E-mail</label>
+        <input
+          type="email"
+          id="agendamento-email"
+          placeholder="seuemail@exemplo.com"
+          required
+        />
+
+        <label for="agendamento-telefone">Telefone</label>
+        <input
+          type="tel"
+          id="agendamento-telefone"
+          placeholder="(55) 99999-9999"
+          required
+        />
+
+        <label for="agendamento-data">Data</label>
+        <input
+          type="date"
+          id="agendamento-data"
+          required
+        />
+
+        <label for="agendamento-hora">Horário</label>
+        <select id="agendamento-hora" required>
+          <option value="">Selecione um horário</option>
+          <option value="08:00">08:00</option>
+          <option value="09:00">09:00</option>
+          <option value="10:00">10:00</option>
+          <option value="11:00">11:00</option>
+          <option value="14:00">14:00</option>
+          <option value="15:00">15:00</option>
+          <option value="16:00">16:00</option>
+          <option value="17:00">17:00</option>
+        </select>
+
+        <label for="agendamento-observacao">Observação</label>
+        <textarea
+          id="agendamento-observacao"
+          rows="4"
+          placeholder="Digite alguma observação, se necessário"
+        ></textarea>
+
+        <button type="submit" class="payment-confirm">
+          Confirmar agendamento
+        </button>
+
+        <button type="button" class="clear-cart-button" onclick="cancelarAgendamento()">
+          Cancelar
+        </button>
+
+      </form>
+    </section>
+
+  </section>
+
+</main>
+
+<footer class="rodape">
+  <p>© 2026 Pedrinho Farmácias — Saúde, cuidado e economia.</p>
+</footer>
+
+<script src="script.js"></script>
+
+</body>
+</html>
