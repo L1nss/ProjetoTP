@@ -1,12 +1,18 @@
-/* =====================================================
-   PEDRINHO FARMÁCIAS - SCRIPT.JS COMPLETO FUNCIONAL
-   Carrinho, compras, pagamento, agendamento, login,
-   estoque, painel admin, logs, notas e gráfico
-===================================================== */
+//init
 
-/* ===============================
-   UTILITÁRIOS
-================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  iniciarAdministradorPadrao();
+  atualizarPermissoesNavbar();
+  protegerPaginasAdmin();
+  configurarFiltros();
+  renderizarBadgesEstoque();
+  renderizarTabelaEstoque();
+  renderizarCarrinho();
+  renderizarPaginaPagamento();
+  renderizarPaginaAgendamento();
+});
+
+//utilitários
 
 function obterStorage(chave, padrao = null) {
   try {
@@ -43,9 +49,7 @@ function criarIdSeguro(texto) {
     .replace(/[^a-zA-Z0-9]/g, "-");
 }
 
-/* ===============================
-   ESTOQUE
-================================ */
+//estoque
 
 const estoquePadrao = [
   { nome: "Kit Medicamentos Essenciais", categoria: "Medicamentos", quantidade: 18 },
@@ -296,9 +300,7 @@ function salvarEstoqueDoInput(nomeProduto) {
   alert("Estoque atualizado com sucesso!");
 }
 
-/* ===============================
-   CARRINHO
-================================ */
+//carrinho de compras
 
 function converterCarrinhoAntigo(lista) {
   if (!Array.isArray(lista)) return [];
@@ -499,9 +501,7 @@ function fecharCarrinho() {
   fundo.classList.remove("active");
 }
 
-/* ===============================
-   PAGAMENTO
-================================ */
+//pagamento
 
 const LINK_QR_CODE_PAGAMENTO = "https://youtu.be/kAOZ14Tjg7A?si=F4XzVReQ7rPesPRp&t=56";
 
@@ -707,9 +707,7 @@ function confirmarPagamento() {
   confirmarPagamentoPagina();
 }
 
-/* ===============================
-   AGENDAMENTO
-================================ */
+//agendamento de serviços
 
 function agendarServico(nome, preco, imagem) {
   const servico = {
@@ -842,9 +840,7 @@ function cancelarAgendamento() {
   window.location.href = "servicos.html";
 }
 
-/* ===============================
-   FILTROS
-================================ */
+//filtros
 
 function configurarFiltros() {
   const campoBusca = document.querySelector("#product-search");
@@ -880,9 +876,7 @@ function configurarFiltros() {
   });
 }
 
-/* ===============================
-   LOGIN
-================================ */
+//login e administração
 
 function converterUsuariosAntigos(lista) {
   if (!Array.isArray(lista)) return [];
@@ -1129,9 +1123,7 @@ function configurarFormulariosLogin() {
   }
 }
 
-/* ===============================
-   ADMIN
-================================ */
+//admin functions
 
 function obterVendasAdmin() {
   const vendas = obterStorage("pedrinhoAdminSales", []);
@@ -1484,9 +1476,7 @@ function limparDadosAdmin() {
   renderizarPainelAdmin();
 }
 
-/* ===============================
-   CARROSSEL
-================================ */
+//carrossel de imagens
 
 let slideAtual = 0;
 let intervaloCarrossel = null;
@@ -1548,9 +1538,7 @@ function configurarCarrossel() {
   iniciarCarrossel();
 }
 
-/* ===============================
-   INICIALIZAÇÃO
-================================ */
+//inicialização geral ao carregar a página
 
 document.addEventListener("DOMContentLoaded", () => {
   iniciarAdministradorPadrao();
